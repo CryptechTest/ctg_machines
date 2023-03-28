@@ -1,7 +1,7 @@
 
-ctg_machines.register_recycle_machine({tier="LV", demand={160}, speed=3})
+ctg_machines.register_recycle_machine({tier="LV", demand={300}, speed=2})
 
-ctg_machines.register_recycle_machine({tier="MV", demand={240}, speed=5})
+ctg_machines.register_recycle_machine({tier="MV", demand={700}, speed=6})
 
 minetest.register_craft( {
     output = "ctg_machines:lv_recycler 2",

@@ -163,9 +163,9 @@ function ctg_machines.register_base_factory(data)
 		end
 
 		local EU_upgrade, tube_upgrade = 0, 0
-		--if data.upgrade then
-		--	EU_upgrade, tube_upgrade = technic.handle_machine_upgrades(meta)
-		--end
+		if data.upgrade then
+			EU_upgrade, tube_upgrade = technic.handle_machine_upgrades(meta)
+		end
 		if data.tube then
 			technic.handle_machine_pipeworks(pos, tube_upgrade)
 		end
