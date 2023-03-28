@@ -1,6 +1,8 @@
 
 local S = technic.getter
 
+local connect_default = {"bottom", "back", "left", "right"}
+
 local function round(v)
 	return math.floor(v + 0.5)
 end
@@ -24,49 +26,64 @@ function ctg_machines.get_recycled(typename, items)
 	local new_input = {}
 	local new_output = nil
 	local run_length = 0;
-	for i, stack in ipairs(items) do
-		if stack:get_name() == 'default:glass' then
-			-- skip over glass..
-		elseif stack:get_name() == 'technic:coal_dust' then
-			new_input[i] = ItemStack(stack)
-			new_input[i]:take_item(1)
-			run_length = 4
-		elseif minetest.get_item_group(stack:get_name(), 'compost') ~= 0 then
-			new_input[i] = ItemStack(stack)
-			new_input[i]:take_item(1)
-			run_length = 7;
-			if (math.random(0,10) > 2) then
-				new_output = ItemStack({ name = "x_farming:bonemeal", count = 1 })
-				run_length = 8;
+	if typename == "compost" then
+		for i, stack in ipairs(items) do
+			if stack:get_name() == 'default:glass' then
+				-- skip over glass..
+			elseif stack:get_name() == 'technic:coal_dust' then
+				new_input[i] = ItemStack(stack)
+				new_input[i]:take_item(1)
+				run_length = 4
+			elseif minetest.get_item_group(stack:get_name(), 'compost') ~= 0 then
+				new_input[i] = ItemStack(stack)
+				new_input[i]:take_item(1)
+				run_length = 7;
+				if (math.random(0,10) > 2) then
+					new_output = ItemStack({ name = "x_farming:bonemeal", count = 1 })
+					run_length = 8;
+				end
+			elseif minetest.get_item_group(stack:get_name(), 'flammable') ~= 0 then
+				local r = math.random(1,10);
+				if (r > 5) then
+					new_output = ItemStack({ name = "technic:coal_dust", count = c })
+				end
+				run_length = 9;
+			elseif stack:get_name() ~= "" then
+				new_input[i] = ItemStack(stack)
+				new_input[i]:take_item(1)
+				run_length = 10;
+				local r = 0;
+				local c = 1;
+				if string.match(stack:get_name(), "diamond") then
+					r = math.random(10,20);
+					c = math.random(1,9);
+				else
+					r = math.random(0,20);
+					c = 1;
+				end
+				if (stack:get_name() == "ctg_machines:carbon_dust") and r > 6 then
+					new_output = ItemStack({ name = "default:glass", count = 1 })
+					run_length = 5;
+				elseif (r < 6) then
+					new_output = ItemStack({ name = "technic:coal_dust", count = c })
+					run_length = 13;
+				elseif (r >= 13) then
+					new_output = ItemStack({ name = "ctg_machines:carbon_dust", count = c })
+					run_length = 15;
+				end
 			end
-		elseif minetest.get_item_group(stack:get_name(), 'flammable') ~= 0 then
-			local r = math.random(1,10);
-			if (r > 5) then
-				new_output = ItemStack({ name = "technic:coal_dust", count = c })
-			end
-			run_length = 9;
-		elseif stack:get_name() ~= "" then
-			new_input[i] = ItemStack(stack)
-			new_input[i]:take_item(1)
-			run_length = 10;
-			local r = 0;
-			local c = 1;
-			if string.match(stack:get_name(), "diamond") then
-				r = math.random(10,20);
-				c = math.random(1,9);
-			else
-				r = math.random(0,20);
-				c = 1;
-			end
-			if (stack:get_name() == "ctg_machines:carbon_dust") and r > 6 then
-				new_output = ItemStack({ name = "default:glass", count = 1 })
-				run_length = 5;
-			elseif (r < 6) then
-				new_output = ItemStack({ name = "technic:coal_dust", count = c })
-				run_length = 13;
-			elseif (r >= 13) then
-				new_output = ItemStack({ name = "ctg_machines:carbon_dust", count = c })
-				run_length = 15;
+		end
+	elseif typename == "bottle" then
+		local c = 1;
+		for i, stack in ipairs(items) do
+			if stack:get_name() == 'vacuum:air_bottle' then
+				-- skip over full bottle..
+			elseif stack:get_name() == 'vessels:steel_bottle' then
+				new_input[i] = ItemStack(stack)
+				new_input[i]:take_item(1)
+				new_output = ItemStack({ name = "vacuum:air_bottle", count = c })
+				run_length = 6 + c
+				c = c + 1
 			end
 		end
 	end
@@ -86,25 +103,51 @@ end
 function update_formspec(data, enabled, size, percent)
 	local input_size = size
 	local machine_desc = data.machine_desc
+	local typename = data.typename
 	local tier = data.tier
 	local ltier = string.lower(tier)
-	local image = ltier.."_recycler_front.png"
-	if (enabled) then
-		image = ltier.."_recycler_active.png"
+	local formspec = nil
+	if (typename == 'compost') then
+		local image = ltier.."_recycler_front.png"
+		if (enabled) then
+			image = ltier.."_recycler_active.png"
+		end
+		formspec =
+			"size[8,9;]"..
+			"list[current_name;src;"..(4-input_size)..",1.5;"..input_size..",1;]"..
+			"list[current_name;dst;5,1;2,2;]"..
+			"list[current_player;main;0,5;8,4;]"..
+			"label[0,0;"..machine_desc:format(tier).."]"..
+			"image[4,1;1,1;".. image .."]"..
+			"image[4,2.0;1,1;gui_furnace_arrow_bg.png^[lowpart:"..
+			tostring(percent)..":gui_furnace_arrow_fg.png^[transformR270]"..
+			"listring[current_name;dst]"..
+			"listring[current_player;main]"..
+			"listring[current_name;src]"..
+			"listring[current_player;main]"
+
+	elseif typename == 'bottle' then
+		local image = "bottler_gauge.png"
+		if (enabled) then
+			image = "bottler_gauge.png"
+		end
+		formspec =
+			"size[8,9;]"..
+			"list[current_name;src;"..(4-input_size)..",1.5;"..input_size..",1;]"..
+			"list[current_name;dst;5,1;2,2;]"..
+			"list[current_player;main;0,5;8,4;]"..
+			"label[0,0;"..machine_desc:format(tier).."]"..
+			--"image[4,1;1,1;".. image .."]"..
+			"image[4,1;1,1;".. image .."]"..
+			--"animated_image[4,1;1,1;an_img;recycler_front_active.png;4;800;1]"..
+			"image[4,2.0;1,1;gui_furnace_arrow_bg.png^[lowpart:"..
+			tostring(percent)..":gui_furnace_arrow_fg.png^[transformR270]"..
+			"listring[current_name;dst]"..
+			"listring[current_player;main]"..
+			"listring[current_name;src]"..
+			"listring[current_player;main]"
 	end
-	local formspec =
-		"size[8,9;]"..
-		"list[current_name;src;"..(4-input_size)..",1.5;"..input_size..",1;]"..
-		"list[current_name;dst;5,1;2,2;]"..
-		"list[current_player;main;0,5;8,4;]"..
-		"label[0,0;"..machine_desc:format(tier).."]"..
-		"image[4,1;1,1;".. image .."]"..
-		"image[4,2.0;1,1;gui_furnace_arrow_bg.png^[lowpart:"..
-		tostring(percent)..":gui_furnace_arrow_fg.png^[transformR270]"..
-		"listring[current_name;dst]"..
-		"listring[current_player;main]"..
-		"listring[current_name;src]"..
-		"listring[current_player;main]"
+	
 	if data.upgrade then
 		formspec = formspec..
 			"list[current_name;upgrade1;1,3;1,1;]"..
@@ -121,6 +164,9 @@ end
 function ctg_machines.register_base_factory(data)
 	local typename = data.typename
 	local input_size = 1
+	if typename == 'bottle' then
+		input_size = 2
+	end
 	local machine_name = data.machine_name
 	local machine_desc = data.machine_desc
 	local tier = data.tier
@@ -187,6 +233,28 @@ function ctg_machines.register_base_factory(data)
 			)..pipeworks.button_label
 		end
 		while true do
+			if typename == 'bottle' then
+				if (pos.y > 1000) then
+					technic.swap_node(pos, machine_node)
+					return
+				end
+				for i = 1, 2 do
+					local node_above = minetest.get_node({x=pos.x,y=pos.y+i,z=pos.z})
+					if (node_above) then
+						if node_above.name == 'vacuum:vacuum' then
+							technic.swap_node(pos, machine_node)
+							return
+						elseif node_above.name == 'default:water_source' or node_above.name == 'default:lava_source' then
+							technic.swap_node(pos, machine_node)
+							return
+						end
+						if minetest.get_item_group(node_above.name, "cracky") ~= 0 then
+							technic.swap_node(pos, machine_node)
+							return
+						end
+					end
+				end
+			end
 			local result = ctg_machines.get_recycled(typename, inv:get_list("src"))
 			if not result then
 				technic.swap_node(pos, machine_node)
@@ -241,6 +309,26 @@ function ctg_machines.register_base_factory(data)
 			meta:set_int("src_time", meta:get_int("src_time") - round(result.time*10))
 			inv:set_list("src", result.new_input)
 			inv:set_list("dst", inv:get_list("dst_tmp"))
+			
+			if typename == 'bottle' and math.random(1, 5) > 3 then
+				minetest.sound_play("vacuum_hiss", {pos = pos, gain = 0.5})
+				minetest.add_particlespawner({
+					amount = 10,
+					time = 3,
+					minpos = vector.subtract(pos, 0.95),
+					maxpos = vector.add(pos, 0.95),
+					minvel = {x=-1.2, y=-1.4, z=-1.2},
+					maxvel = {x=1.2, y=0.2, z=1.2},
+					minacc = {x=0, y=0, z=0},
+					maxacc = {x=0, y=-0.1, z=0},
+					minexptime = 0.7,
+					maxexptime = 1,
+					minsize = 0.6,
+					maxsize = 1.4,
+					vertical = false,
+					texture = "bubble.png"
+				})
+			end
 		end
 	end
 
@@ -335,9 +423,9 @@ function ctg_machines.register_base_factory(data)
 				},
 			}
 		},
-		sunlight_propagates = true,
-		light_source =  7,
-		paramtype = "light",
+		sunlight_propagates = (typename == 'compost'),
+		light_source = (function() if typename == 'compost' then return 7 else return 0 end end)(),
+		paramtype = (function() if typename == 'compost' then return "light" else return "" end end)(),
 		paramtype2 = "facedir",
 		drop = data.modname..":"..ltier.."_"..machine_name,
 		groups = active_groups,
@@ -383,9 +471,9 @@ function ctg_machines.register_base_factory(data)
 			ltier.."_"..machine_name.."_side.png",
 			ltier.."_"..machine_name.."_active.png"
 		},
-		sunlight_propagates = true,
-		light_source =  6,
-		paramtype = "light",
+		sunlight_propagates = (typename == 'compost'),
+		light_source = (function() if typename == 'compost' then return 6 else return 0 end end)(),
+		paramtype = (function() if typename == 'compost' then return "light" else return "" end end)(),
 		paramtype2 = "facedir",
 		drop = data.modname..":"..ltier.."_"..machine_name,
 		groups = active_groups,
