@@ -3,6 +3,9 @@ local S = technic.getter
 
 local connect_default = {"bottom", "back", "left", "right"}
 
+local c_vacuum = minetest.get_content_id("vacuum:vacuum")
+local c_air = minetest.get_content_id("air")
+
 local function round(v)
 	return math.floor(v + 0.5)
 end
@@ -22,7 +25,7 @@ end
 
 register_dust("Carbon")
 
-function ctg_machines.get_recycled(typename, items)
+local function get_recycled(typename, items)
 	local new_input = {}
 	local new_output = nil
 	local run_length = 0;
@@ -96,8 +99,56 @@ function ctg_machines.get_recycled(typename, items)
 	end
 end
 
+local function process_air(pos)
+
+	local range = {x=3,y=3,z=3}
+	local pos1 = vector.subtract(pos, range)
+	local pos2 = vector.add(pos, range)
+
+	local manip = minetest.get_voxel_manip()
+	local e1, e2 = manip:read_from_map(pos1, pos2)
+	local area = VoxelArea:new({MinEdge=e1, MaxEdge=e2})
+	local data = manip:get_data()
+
+	for z=pos1.z, pos2.z do
+	for y=pos1.y, pos2.y do
+	for x=pos1.x, pos2.x do
+
+		local index = area:index(x, y, z)
+		if data[index] == c_air then
+			data[index] = c_vacuum
+		end
+
+	end
+	end
+	end
+
+	manip:set_data(data)
+	manip:write_to_map()
+end
+
 function update_formspec(data, enabled, size)
 	return update_formspec(data, enabled, size, 0)
+end
+
+local function play_hiss(pos)
+	minetest.sound_play("vacuum_hiss", {pos = pos, gain = 0.5})
+	minetest.add_particlespawner({
+		amount = 10,
+		time = 3,
+		minpos = vector.subtract(pos, 0.95),
+		maxpos = vector.add(pos, 0.95),
+		minvel = {x=-1.2, y=-1.4, z=-1.2},
+		maxvel = {x=1.2, y=0.2, z=1.2},
+		minacc = {x=0, y=0, z=0},
+		maxacc = {x=0, y=-0.1, z=0},
+		minexptime = 0.7,
+		maxexptime = 1,
+		minsize = 0.6,
+		maxsize = 1.4,
+		vertical = false,
+		texture = "bubble.png"
+	})
 end
 
 function update_formspec(data, enabled, size, percent)
@@ -127,6 +178,27 @@ function update_formspec(data, enabled, size, percent)
 			"listring[current_player;main]"
 
 	elseif typename == 'bottle' then
+		local image = "bottler_gauge.png"
+		if (enabled) then
+			image = "bottler_gauge.png"
+		end
+		formspec =
+			"size[8,9;]"..
+			"list[current_name;src;"..(4-input_size)..",1.5;"..input_size..",1;]"..
+			"list[current_name;dst;5,1;2,2;]"..
+			"list[current_player;main;0,5;8,4;]"..
+			"label[0,0;"..machine_desc:format(tier).."]"..
+			--"image[4,1;1,1;".. image .."]"..
+			"image[4,1;1,1;".. image .."]"..
+			--"animated_image[4,1;1,1;an_img;recycler_front_active.png;4;800;1]"..
+			"image[4,2.0;1,1;gui_furnace_arrow_bg.png^[lowpart:"..
+			tostring(percent)..":gui_furnace_arrow_fg.png^[transformR270]"..
+			"listring[current_name;dst]"..
+			"listring[current_player;main]"..
+			"listring[current_name;src]"..
+			"listring[current_player;main]"
+
+	elseif typename == 'vacuum' then
 		local image = "bottler_gauge.png"
 		if (enabled) then
 			image = "bottler_gauge.png"
@@ -233,6 +305,17 @@ function ctg_machines.register_base_factory(data)
 			)..pipeworks.button_label
 		end
 		while true do
+			if typename == 'vacuum' then
+				for i = 1, 2 do
+					local node_above = minetest.get_node({x=pos.x,y=pos.y+i,z=pos.z})
+					if node_above.name == 'air' then
+						play_hiss(pos)
+						--minetest.set_node(node_above, {name = "vacuum:vacuum"})
+						process_air(pos)
+						break
+					end
+				end
+			end
 			if typename == 'bottle' then
 				if (pos.y > 1000) then
 					technic.swap_node(pos, machine_node)
@@ -255,7 +338,7 @@ function ctg_machines.register_base_factory(data)
 					end
 				end
 			end
-			local result = ctg_machines.get_recycled(typename, inv:get_list("src"))
+			local result = get_recycled(typename, inv:get_list("src"))
 			if not result then
 				technic.swap_node(pos, machine_node)
 				meta:set_string("infotext", S("%s Idle"):format(machine_desc_tier))
@@ -311,23 +394,7 @@ function ctg_machines.register_base_factory(data)
 			inv:set_list("dst", inv:get_list("dst_tmp"))
 			
 			if typename == 'bottle' and math.random(1, 5) > 3 then
-				minetest.sound_play("vacuum_hiss", {pos = pos, gain = 0.5})
-				minetest.add_particlespawner({
-					amount = 10,
-					time = 3,
-					minpos = vector.subtract(pos, 0.95),
-					maxpos = vector.add(pos, 0.95),
-					minvel = {x=-1.2, y=-1.4, z=-1.2},
-					maxvel = {x=1.2, y=0.2, z=1.2},
-					minacc = {x=0, y=0, z=0},
-					maxacc = {x=0, y=-0.1, z=0},
-					minexptime = 0.7,
-					maxexptime = 1,
-					minsize = 0.6,
-					maxsize = 1.4,
-					vertical = false,
-					texture = "bubble.png"
-				})
+				play_hiss(pos)
 			end
 		end
 	end
