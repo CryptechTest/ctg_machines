@@ -1,4 +1,17 @@
 
+local has_pipeworks = minetest.get_modpath("pipeworks")
+
+local tube_entry_wood = ""
+local tube_entry_stone = ""
+local tube_entry_metal = ""
+
+if has_pipeworks then
+	tube_entry_wood = "^pipeworks_tube_connection_wooden.png"
+	tube_entry_stone = "^pipeworks_tube_connection_stony.png"
+	tube_entry_metal = "^pipeworks_tube_connection_metallic.png"
+end
+
+
 local S = technic.getter
 
 local connect_default = {"bottom", "back", "left", "right"}
@@ -399,14 +412,15 @@ function ctg_machines.register_base_factory(data)
 		end
 	end
 
-	minetest.register_node(data.modname..":"..ltier.."_"..machine_name, {
+	local node_name = data.modname..":"..ltier.."_"..machine_name
+	minetest.register_node(node_name, {
 		description = machine_desc:format(tier),
 		tiles = {
 			ltier.."_"..machine_name.."_top.png",
-			ltier.."_"..machine_name.."_bottom.png",
-			ltier.."_"..machine_name.."_side.png",
-			ltier.."_"..machine_name.."_side.png",
-			ltier.."_"..machine_name.."_side.png",
+			ltier.."_"..machine_name.."_bottom.png", -- .. tube_entry_metal,
+			ltier.."_"..machine_name.."_side.png" .. tube_entry_stone,
+			ltier.."_"..machine_name.."_side.png" .. tube_entry_stone,
+			ltier.."_"..machine_name.."_side.png" .. tube_entry_stone,
 			ltier.."_"..machine_name.."_front.png"
 		},
 		paramtype2 = "facedir",
@@ -576,8 +590,8 @@ function ctg_machines.register_base_factory(data)
 		end,
 	})
 
-	technic.register_machine(tier, data.modname..":"..ltier.."_"..machine_name,            technic.receiver)
-	technic.register_machine(tier, data.modname..":"..ltier.."_"..machine_name.."_wait",   technic.receiver)
-	technic.register_machine(tier, data.modname..":"..ltier.."_"..machine_name.."_active", technic.receiver)
+	technic.register_machine(tier, node_name,            technic.receiver)
+	technic.register_machine(tier, node_name.."_wait",   technic.receiver)
+	technic.register_machine(tier, node_name.."_active", technic.receiver)
 
 end -- End registration
