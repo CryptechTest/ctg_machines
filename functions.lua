@@ -1,5 +1,6 @@
 
 local has_pipeworks = minetest.get_modpath("pipeworks")
+local fs_helpers = pipeworks.fs_helpers
 
 local tube_entry_wood = ""
 local tube_entry_stone = ""
