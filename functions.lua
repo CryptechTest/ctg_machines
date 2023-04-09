@@ -169,8 +169,8 @@ local function process_air(pos)
     manip:write_to_map()
 end
 
-function update_formspec(data, enabled, size)
-    return update_formspec2(data, enabled, size, 0)
+function update_machine_formspec(data, enabled, size)
+    return update_machine_formspec2(data, enabled, size, 0)
 end
 
 local function play_hiss(pos)
@@ -212,7 +212,7 @@ local function play_hiss(pos)
     })
 end
 
-function update_formspec2(data, enabled, size, percent)
+function update_machine_formspec2(data, enabled, size, percent)
     local input_size = size
     local machine_desc = data.machine_desc
     local typename = data.typename
@@ -300,7 +300,7 @@ function ctg_machines.register_base_factory(data)
         active_groups[k] = v
     end
 
-    local formspec = update_formspec(data, false, input_size)
+    local formspec = update_machine_formspec(data, false, input_size)
 
     local tube = technic.new_default_tube()
     if data.can_insert then
@@ -391,14 +391,14 @@ function ctg_machines.register_base_factory(data)
                 meta:set_string("infotext", S("%s Idle"):format(machine_desc_tier))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
-                local formspec = update_formspec(data, false, input_size)
+                local formspec = update_machine_formspec(data, false, input_size)
                 if (formspec) then
                     meta:set_string("formspec", formspec .. form_buttons)
                 end
                 return
             end
             local item_percent = (math.floor(meta:get_int("src_time") / round(result.time * 10) * 100))
-            local formspec = update_formspec2(data, true, input_size, item_percent)
+            local formspec = update_machine_formspec2(data, true, input_size, item_percent)
             if formspec then
                 meta:set_string("formspec", formspec .. form_buttons)
             end
@@ -507,7 +507,7 @@ function ctg_machines.register_base_factory(data)
                 form_buttons = fs_helpers.cycling_button(meta, pipeworks.button_base, "splitstacks",
                     {pipeworks.button_off, pipeworks.button_on}) .. pipeworks.button_label
             end
-            -- local formspec = update_formspec(data, false)
+            -- local formspec = update_machine_formspec(data, false)
             meta:set_string("formspec", formspec .. form_buttons)
         end
     })
