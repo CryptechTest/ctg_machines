@@ -142,7 +142,7 @@ local function process_air(pos)
 end
 
 function update_formspec(data, enabled, size)
-	return update_formspec(data, enabled, size, 0)
+	return update_formspec2(data, enabled, size, 0)
 end
 
 local function play_hiss(pos)
@@ -165,7 +165,7 @@ local function play_hiss(pos)
 	})
 end
 
-function update_formspec(data, enabled, size, percent)
+function update_formspec2(data, enabled, size, percent)
 	local input_size = size
 	local machine_desc = data.machine_desc
 	local typename = data.typename
@@ -359,11 +359,13 @@ function ctg_machines.register_base_factory(data)
 				meta:set_int(tier.."_EU_demand", 0)
 				meta:set_int("src_time", 0)
 				local formspec = update_formspec(data, false, input_size)
-				meta:set_string("formspec", formspec..form_buttons)
+				if (formspec) then
+					meta:set_string("formspec", formspec..form_buttons)
+				end
 				return
 			end
 			local item_percent = (math.floor(meta:get_int("src_time")  / round(result.time*10) * 100))
-			local formspec = update_formspec(data, true, input_size, item_percent)
+			local formspec = update_formspec2(data, true, input_size, item_percent)
 			meta:set_string("formspec", formspec..form_buttons)
 			meta:set_int(tier.."_EU_demand", machine_demand[EU_upgrade+1])
 			if (item_percent > 20) then
