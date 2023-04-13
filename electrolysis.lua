@@ -110,7 +110,7 @@ local function get_water(items, take)
     local new_input = nil
     local c = 0;
     for i, stack in ipairs(items) do
-        local group = minetest.get_node_group(stack:get_name(), "food_water")
+        local group = minetest.get_item_group(stack:get_name(), "food_water")
         if group > 0 then
             new_input = ItemStack(stack)
             if (take) then
@@ -171,7 +171,7 @@ local function has_items(pos)
     if src1[1]:get_name() == 'vessels:steel_bottle' and src1[1]:get_count() > 1 then
         has_bottle = true
     end
-    local group = minetest.get_node_group(src2[1]:get_name(), "food_water")
+    local group = minetest.get_item_group(src2[1]:get_name(), "food_water")
     if group > 0 then
         has_water = true
     end
