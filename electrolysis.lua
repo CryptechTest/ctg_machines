@@ -294,7 +294,42 @@ local function register_machine_electrolysis(data)
     end
 
     local formspec = ctg_machines.update_formspec2(data, false, false, false)
-    local tube = technic.new_default_tube()
+
+    local tube = {
+        insert_object = function(pos, node, stack, direction)
+            local meta = minetest.get_meta(pos)
+            local inv = meta:get_inventory()
+            local added = nil
+            if direction.y == -1 then
+                added = inv:add_item("src3", stack)
+            elseif direction.x == 1 or direction.x == -1 then
+                added = inv:add_item("src1", stack)
+            elseif direction.z == 1 or direction.z == -1 then
+                added = inv:add_item("src2", stack)
+            end 
+            return added
+        end,
+        can_insert = function(pos, node, stack, direction)
+            local meta = minetest.get_meta(pos)
+            local inv = meta:get_inventory()
+            if direction.y == -1 then
+                return inv:room_for_item("src3", stack)
+            elseif direction.x == 1 or direction.x == -1 then
+                return inv:room_for_item("src1", stack)
+            elseif direction.z == 1 or direction.z == -1 then
+                return inv:room_for_item("src2", stack)
+            end
+            return false
+        end,
+        connect_sides = {
+            left = 1,
+            right = 1,
+            back = 1,
+            top = 1,
+            bottom = 1,
+        }
+    }
+
     if data.can_insert then
         tube.can_insert = data.can_insert
     end
@@ -351,7 +386,7 @@ local function register_machine_electrolysis(data)
             local has_water = get_water(inv:get_list("src2"), false) ~= nil
             -- local formspec = ctg_machines.update_formspec(data, false, enabled, has_water, item_percent)
             -- meta:set_string("formspec", formspec)
-            if meta:get_int("src_time") < round(data.speed * 10 * 1.0) then
+            if powered and meta:get_int("src_time") < round(data.speed * 10 * 1.0) then
                 if not has_items(pos) then
                     technic.swap_node(pos, machine_node)
                     meta:set_string("infotext", S("%s Idle - Missing Input"):format(machine_desc_tier))
@@ -379,7 +414,9 @@ local function register_machine_electrolysis(data)
                     meta:set_string("formspec", formspec)
                     return
                 end
-                if meta:get_int("src_time") % 250 == 0 then
+                if ltier == "lv" and meta:get_int("src_time") % 250 == 0 then
+                    out_results(pos, machine_node, machine_desc_tier, ltier, false, true)
+                elseif ltier == "mv" and meta:get_int("src_time") % 150 == 0 then
                     out_results(pos, machine_node, machine_desc_tier, ltier, false, true)
                 end
                 local item_percent = (math.floor(meta:get_int("src_time") / round(time_scl * 10) * 100))
@@ -400,14 +437,14 @@ local function register_machine_electrolysis(data)
 
     local tentry = ""
     if data.tube == 1 then
-        tentry = tube_entry_metal
+        tentry = tube_entry_stone
     end
 
     local node_name = data.modname .. ":" .. ltier .. "_" .. machine_name
     minetest.register_node(node_name, {
         description = machine_desc:format(tier),
         -- up, down, right, left, back, front
-        tiles = {ltier .. "_" .. machine_name .. "_top.png" .. mv, ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
+        tiles = {ltier .. "_" .. machine_name .. "_top.png" .. mv .. tentry, ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry,
@@ -484,7 +521,7 @@ local function register_machine_electrolysis(data)
 
     minetest.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_active", {
         description = machine_desc:format(tier),
-        tiles = {ltier .. "_" .. machine_name .. "_top_active.png", ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
+        tiles = {ltier .. "_" .. machine_name .. "_top_active.png" .. tentry, ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry, {
@@ -497,6 +534,8 @@ local function register_machine_electrolysis(data)
                 length = len
             }
         }},
+        light_source = 3,
+        paramtype = "light",
         paramtype2 = "facedir",
         drop = data.modname .. ":" .. ltier .. "_" .. machine_name,
         groups = active_groups,
@@ -561,6 +600,8 @@ local function register_machine_electrolysis(data)
     technic.register_machine(tier, node_name, technic.receiver)
     technic.register_machine(tier, node_name .. "_active", technic.receiver)
 
+    pipeworks.ui_cat_tube_list[#pipeworks.ui_cat_tube_list + 1] = node_name
+
 end -- End registration
 
 function ctg_machines.register_machine_electrolysis(data)
@@ -581,9 +622,8 @@ ctg_machines.register_machine_electrolysis({
 ctg_machines.register_machine_electrolysis({
     tier = "MV",
     demand = {4600},
-    speed = 10,
-    tube = 1,
-    connect_sides = {"left", "right", "back", "top"}
+    speed = 4,
+    tube = 1
 })
 
 minetest.register_craft({

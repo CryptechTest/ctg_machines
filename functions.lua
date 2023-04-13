@@ -629,4 +629,6 @@ function ctg_machines.register_base_factory(data)
     technic.register_machine(tier, node_name .. "_wait", technic.receiver)
     technic.register_machine(tier, node_name .. "_active", technic.receiver)
 
+    pipeworks.ui_cat_tube_list[#pipeworks.ui_cat_tube_list + 1] = node_name
+
 end -- End registration
