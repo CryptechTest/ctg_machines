@@ -574,8 +574,8 @@ end
 ctg_machines.register_machine_electrolysis({
     tier = "LV",
     demand = {2500},
-    speed = 5,
-    --tube = 1
+    speed = 5
+    -- tube = 1
 })
 
 ctg_machines.register_machine_electrolysis({
@@ -583,10 +583,19 @@ ctg_machines.register_machine_electrolysis({
     demand = {4600},
     speed = 10,
     tube = 1,
-    connect_sides = {
-        left = 1,
-        right = 1,
-        back = 1,
-        top = 1
-    }
+    connect_sides = {"left", "right", "back", "top"}
+})
+
+minetest.register_craft({
+    output = "ctg_machines:lv_electrolysis 1",
+    recipe = {{"technic:stainless_steel_ingot", "moreores:silver_ingot", "technic:stainless_steel_ingot"},
+              {"default:glass", "technic:machine_casing", "default:mese_crystal"},
+              {"basic_materials:copper_wire", "default:steelblock", "ctg_world:nickel_wire"}}
+})
+
+minetest.register_craft({
+    output = "ctg_machines:mv_electrolysis 1",
+    recipe = {{"", "technic:chromium_ingot", ""},
+              {"basic_materials:copper_wire", "ctg_machines:lv_electrolysis", "ctg_world:nickel_wire"},
+              {"", "technic:mv_transformer", ""}}
 })

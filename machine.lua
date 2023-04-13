@@ -2,6 +2,7 @@ local S = technic.getter
 
 function ctg_machines.register_recycle_machine(data)
     data.tube = 1
+    data.connect_sides = {"left", "right", "back"}
     data.machine_name = "recycler"
     -- data.can_insert = true
     data.typename = "compost"
@@ -12,11 +13,7 @@ end
 
 function ctg_machines.register_bottler_machine(data)
     data.tube = 1
-    data.connect_sides = {
-        left = 1,
-        right = 1,
-        back = 1
-    }
+    data.connect_sides = {"left", "right", "back"}
     data.machine_name = "bottler"
     -- data.can_insert = true
     data.typename = "bottle"
@@ -27,11 +24,7 @@ end
 
 function ctg_machines.register_vacuum_pump_machine(data)
     data.tube = 1
-    data.connect_sides = {
-        left = 1,
-        right = 1,
-        back = 1
-    }
+    data.connect_sides = {"left", "right", "back"}
     data.machine_name = "vacuum_pump"
     -- data.can_insert = true
     data.typename = "vacuum"
