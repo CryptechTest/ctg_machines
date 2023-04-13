@@ -6,8 +6,8 @@ ctg_machines.register_bottler_machine({
 
 minetest.register_craft({
     output = "ctg_machines:mv_bottler 1",
-    recipe = {{"", "ctg_machines:carbon_dust", ""}, {"", "ctg_machines:lv_bottler", ""},
-              {"", "moreores:silver_ingot", ""}}
+    recipe = {{"ctg_world:titanium_ingot", "ctg_world:titanium_ingot", "ctg_world:titanium_ingot"},
+              {"", "ctg_machines:lv_bottler", ""}, {"", "basic_materials:motor", ""}}
 })
 
 ctg_machines.register_bottler_machine({
@@ -18,5 +18,6 @@ ctg_machines.register_bottler_machine({
 
 minetest.register_craft({
     output = "ctg_machines:lv_bottler 1",
-    recipe = {{"", "ctg_machines:carbon_dust", ""}, {"", "vacuum:airpump", ""}, {"", "moreores:silver_ingot", ""}}
+    recipe = {{"", "basic_materials:motor", ""}, {"ctg_world:nickel_ingot", "vacuum:airpump", "ctg_world:nickel_ingot"},
+              {"moreores:silver_ingot", "moreores:silver_ingot", "moreores:silver_ingot"}}
 })
