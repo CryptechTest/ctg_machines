@@ -407,6 +407,7 @@ local function register_machine_electrolysis(data)
             meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
             meta:set_string("infotext", S("%s Active"):format(machine_desc_tier))
             if meta:get_int("src_time") < round(time_scl * 10) then
+                local item_percent = (math.floor(meta:get_int("src_time") / round(time_scl * 10) * 100))
                 if not powered then
                     technic.swap_node(pos, machine_node)
                     meta:set_string("infotext", S("%s Unpowered"):format(machine_desc_tier))
@@ -419,7 +420,6 @@ local function register_machine_electrolysis(data)
                 elseif ltier == "mv" and meta:get_int("src_time") % 150 == 0 then
                     out_results(pos, machine_node, machine_desc_tier, ltier, false, true)
                 end
-                local item_percent = (math.floor(meta:get_int("src_time") / round(time_scl * 10) * 100))
                 local formspec = ctg_machines.update_formspec(data, true, enabled, has_water, item_percent)
                 meta:set_string("formspec", formspec)
                 return
