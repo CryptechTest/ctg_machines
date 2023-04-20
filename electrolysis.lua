@@ -306,7 +306,7 @@ local function register_machine_electrolysis(data)
                 added = inv:add_item("src1", stack)
             elseif direction.z == 1 or direction.z == -1 then
                 added = inv:add_item("src2", stack)
-            end 
+            end
             return added
         end,
         can_insert = function(pos, node, stack, direction)
@@ -326,7 +326,7 @@ local function register_machine_electrolysis(data)
             right = 1,
             back = 1,
             top = 1,
-            bottom = 1,
+            bottom = 1
         }
     }
 
@@ -444,7 +444,8 @@ local function register_machine_electrolysis(data)
     minetest.register_node(node_name, {
         description = machine_desc:format(tier),
         -- up, down, right, left, back, front
-        tiles = {ltier .. "_" .. machine_name .. "_top.png" .. mv .. tentry, ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
+        tiles = {ltier .. "_" .. machine_name .. "_top.png" .. mv .. tentry,
+                 ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry,
@@ -509,7 +510,28 @@ local function register_machine_electrolysis(data)
             end
             local formspec = ctg_machines.update_formspec2(data, false, enabled, false)
             meta:set_string("formspec", formspec .. form_buttons)
-        end
+        end,
+        mesecons = {
+            effector = {
+                action_on = function(pos, node)
+                    local meta = minetest.get_meta(pos)
+                    meta:set_int("enabled", 1)
+                end,
+                action_off = function(pos, node)
+                    local meta = minetest.get_meta(pos)
+                    meta:set_int("enabled", 0)
+                end
+            }
+        },
+        digiline = {
+            receptor = {
+                action = function()
+                end
+            },
+            effector = {
+                action = ctg_machines.digiline_effector
+            }
+        }
     })
 
     local len = 1.0
@@ -521,7 +543,8 @@ local function register_machine_electrolysis(data)
 
     minetest.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_active", {
         description = machine_desc:format(tier),
-        tiles = {ltier .. "_" .. machine_name .. "_top_active.png" .. tentry, ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
+        tiles = {ltier .. "_" .. machine_name .. "_top_active.png" .. tentry,
+                 ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry, {
@@ -594,7 +617,28 @@ local function register_machine_electrolysis(data)
             end
             local formspec = ctg_machines.update_formspec2(data, false, enabled, false)
             meta:set_string("formspec", formspec .. form_buttons)
-        end
+        end,
+        mesecons = {
+            effector = {
+                action_on = function(pos, node)
+                    local meta = minetest.get_meta(pos)
+                    meta:set_int("enabled", 1)
+                end,
+                action_off = function(pos, node)
+                    local meta = minetest.get_meta(pos)
+                    meta:set_int("enabled", 0)
+                end
+            }
+        },
+        digiline = {
+            receptor = {
+                action = function()
+                end
+            },
+            effector = {
+                action = ctg_machines.electrolysis_digiline_effector
+            }
+        }
     })
 
     technic.register_machine(tier, node_name, technic.receiver)
