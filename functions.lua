@@ -1,6 +1,6 @@
 local S = minetest.get_translator("ctg_machines")
 
-local function get_recycled(typename, items)
+function get_recycled(typename, items)
     local new_input = {}
     local new_output = nil
     local run_length = 0;
