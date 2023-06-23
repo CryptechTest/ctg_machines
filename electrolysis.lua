@@ -210,7 +210,7 @@ local function out_result(pos, ninput, machine_node, machine_desc_tier, tier, do
     end
     if not room_for_output then
         technic.swap_node(pos, machine_node)
-        meta:set_string("infotext", S("%s Idle"):format(machine_desc_tier))
+        meta:set_string("infotext", machine_desc_tier .. S(" Idle"))
         meta:set_int(tier .. "_EU_demand", 0)
         meta:set_int("src_time", round(time_scl * 10))
         return false
@@ -375,7 +375,7 @@ local function register_machine_electrolysis(data)
 
             if (not enabled) then
                 technic.swap_node(pos, machine_node)
-                meta:set_string("infotext", S("%s Disabled"):format(machine_desc_tier))
+                meta:set_string("infotext", machine_desc_tier .. S(" Disabled"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
                 local formspec = ctg_machines.update_formspec2(data, false, enabled, false)
@@ -389,7 +389,7 @@ local function register_machine_electrolysis(data)
             if powered and meta:get_int("src_time") < round(data.speed * 10 * 1.0) then
                 if not has_items(pos) then
                     technic.swap_node(pos, machine_node)
-                    meta:set_string("infotext", S("%s Idle - Missing Input"):format(machine_desc_tier))
+                    meta:set_string("infotext", machine_desc_tier .. S(" Idle - Missing Input"))
                     meta:set_int(tier .. "_EU_demand", 0)
                     meta:set_int("src_time", 0)
                     local formspec = ctg_machines.update_formspec2(data, false, enabled, has_water)
@@ -405,12 +405,12 @@ local function register_machine_electrolysis(data)
 
             technic.swap_node(pos, machine_node .. "_active")
             meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
-            meta:set_string("infotext", S("%s Active"):format(machine_desc_tier))
+            meta:set_string("infotext", machine_desc_tier .. S(" Active"))
             if meta:get_int("src_time") < round(time_scl * 10) then
                 local item_percent = (math.floor(meta:get_int("src_time") / round(time_scl * 10) * 100))
                 if not powered then
                     technic.swap_node(pos, machine_node)
-                    meta:set_string("infotext", S("%s Unpowered"):format(machine_desc_tier))
+                    meta:set_string("infotext", machine_desc_tier .. S(" Unpowered"))
                     local formspec = ctg_machines.update_formspec(data, false, enabled, has_water, item_percent)
                     meta:set_string("formspec", formspec)
                     return

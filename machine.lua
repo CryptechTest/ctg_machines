@@ -198,7 +198,7 @@ function ctg_machines.register_base_factory(data)
             local result = get_recycled(typename, inv:get_list("src"))
             if not result then
                 technic.swap_node(pos, machine_node)
-                meta:set_string("infotext", S("%s Idle"):format(machine_desc_tier))
+                meta:set_string("infotext", machine_desc_tier .. S(" Idle"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
                 local formspec = update_machine_formspec(data, false, input_size)
@@ -218,11 +218,11 @@ function ctg_machines.register_base_factory(data)
             elseif (math.random(1, 3) > 1) then
                 technic.swap_node(pos, machine_node .. "_wait")
             end
-            meta:set_string("infotext", S("%s Active"):format(machine_desc_tier))
+            meta:set_string("infotext", machine_desc_tier .. S(" Active"))
             if meta:get_int("src_time") < round(result.time * 10) then
                 if not powered then
                     technic.swap_node(pos, machine_node)
-                    meta:set_string("infotext", S("%s Unpowered"):format(machine_desc_tier))
+                    meta:set_string("infotext", machine_desc_tier .. S(" Unpowered"))
                 end
                 return
             end
@@ -247,7 +247,7 @@ function ctg_machines.register_base_factory(data)
             end
             if not room_for_output then
                 technic.swap_node(pos, machine_node)
-                meta:set_string("infotext", S("%s Idle"):format(machine_desc_tier))
+                meta:set_string("infotext", machine_desc_tier .. S(" Idle"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", round(result.time * 10))
                 return
