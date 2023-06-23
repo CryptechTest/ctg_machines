@@ -11,7 +11,7 @@ if has_pipeworks then
     tube_entry_metal = "^pipeworks_tube_connection_metallic.png"
 end
 
-local S = technic.getter
+local S = minetest.get_translator("ctg_machines")
 
 local connect_default = {"bottom", "back", "left", "right"}
 
