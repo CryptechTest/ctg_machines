@@ -112,7 +112,27 @@ function ctg_machines.register_base_factory(data)
 
     local formspec = update_machine_formspec(data, false, input_size)
 
-    local tube = technic.new_default_tube()
+    local tube = {
+        insert_object = function(pos, node, stack, direction)
+            local meta = minetest.get_meta(pos)
+            local inv = meta:get_inventory()
+            local added = inv:add_item("src", stack)
+            return added
+        end,
+        can_insert = function(pos, node, stack, direction)
+            local meta = minetest.get_meta(pos)
+            local inv = meta:get_inventory()
+            return inv:room_for_item("src", stack)
+        end,
+        connect_sides = {
+            front = 1,
+            left = 1,
+            right = 1,
+            back = 1,
+            --top = 1,
+            bottom = 1
+        }
+    }
     if data.can_insert then
         tube.can_insert = data.can_insert
     end
