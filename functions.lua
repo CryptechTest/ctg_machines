@@ -94,7 +94,7 @@ function get_recycled(typename, items)
     end
 end
 
-local function process_air(pos)
+function process_air(pos)
 
     local range = {
         x = 3,
@@ -133,7 +133,7 @@ function update_machine_formspec(data, enabled, size)
     return update_machine_formspec2(data, enabled, size, 0)
 end
 
-local function play_hiss(pos)
+function play_hiss(pos)
     minetest.sound_play("vacuum_hiss", {
         pos = pos,
         gain = 0.5
