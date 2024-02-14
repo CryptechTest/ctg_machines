@@ -294,55 +294,59 @@ function ctg_machines.register_base_factory(data)
                 local pos2 = vector.add(pos, range)
                 local nodes = minetest.find_nodes_in_area(pos1, pos2, {"air", "vacuum:atmos_thick"})
                 if #nodes > 0 then
-                    for i = 1, 2 do
-                        local node_above = minetest.get_node({
-                            x = pos.x,
-                            y = pos.y + i,
-                            z = pos.z
-                        })
-                        if (node_above) then
-                            if node_above.name == 'vacuum:vacuum' then
-                                technic.swap_node(pos, machine_node)
-                                meta:set_string("infotext", machine_desc_tier .. S(" Requires Air"))
-                                meta:set_int(tier .. "_EU_demand", 0)
-                                return
-                            elseif node_above.name == 'default:water_source' or node_above.name == 'default:lava_source' then
-                                technic.swap_node(pos, machine_node)
-                                meta:set_string("infotext", machine_desc_tier .. S(" Port Clogged"))
-                                meta:set_int(tier .. "_EU_demand", 0)
-                                return
-                            end
-                            if minetest.get_item_group(node_above.name, "cracky") ~= 0 then
-                                technic.swap_node(pos, machine_node)
-                                meta:set_string("infotext", machine_desc_tier .. S(" Port Blocked"))
-                                meta:set_int(tier .. "_EU_demand", 0)
-                                return
-                            end
+                    local i = 1
+                    local node_above = minetest.get_node({
+                        x = pos.x,
+                        y = pos.y + i,
+                        z = pos.z
+                    })
+                    if (node_above) then
+                        if node_above.name == 'vacuum:vacuum' then
+                            technic.swap_node(pos, machine_node)
+                            meta:set_string("infotext", machine_desc_tier .. S(" Requires Air"))
+                            meta:set_int(tier .. "_EU_demand", 0)
+                            return
+                        elseif node_above.name == 'default:water_source' or node_above.name == 'default:lava_source' then
+                            technic.swap_node(pos, machine_node)
+                            meta:set_string("infotext", machine_desc_tier .. S(" Port Clogged"))
+                            meta:set_int(tier .. "_EU_demand", 0)
+                            return
                         end
-                        if pos.y > 1000 then
-                            if minetest.get_modpath("ctg_airs") then
-                                if ctg_airs.process_atmos(pos, math.random(1, 3)) == 0 then
-                                    technic.swap_node(pos, machine_node)
-                                    meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
-                                    meta:set_int(tier .. "_EU_demand", 0)
-                                    return
-                                end
-                            else
-                                return
-                            end
-                        else
-                            if process_air({
-                                x = pos.x,
-                                y = pos.y + i,
-                                z = pos.z
-                            }, 3) == 0 then
+                        if minetest.get_item_group(node_above.name, "cracky") ~= 0 then
+                            technic.swap_node(pos, machine_node)
+                            meta:set_string("infotext", machine_desc_tier .. S(" Port Blocked"))
+                            meta:set_int(tier .. "_EU_demand", 0)
+                            return
+                        end
+                    end
+                    if pos.y > 1000 then
+                        if minetest.get_modpath("ctg_airs") then
+                            if ctg_airs.process_atmos(pos, math.random(1, 4)) == 0 then
                                 technic.swap_node(pos, machine_node)
                                 meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
                                 meta:set_int(tier .. "_EU_demand", 0)
                                 return
                             end
+                        else
+                            return
+                        end
+                    else
+                        if process_air({
+                            x = pos.x,
+                            y = pos.y + i,
+                            z = pos.z
+                        }, 3) == 0 then
+                            technic.swap_node(pos, machine_node)
+                            meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
+                            meta:set_int(tier .. "_EU_demand", 0)
+                            return
                         end
                     end
+                else
+                    technic.swap_node(pos, machine_node)
+                    meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
+                    meta:set_int(tier .. "_EU_demand", 0)
+                    return
                 end
             end
 

@@ -86,7 +86,7 @@ function get_recycled(typename, items, take)
                     name = "vacuum:air_bottle",
                     count = c
                 })
-                run_length = 28 + c
+                run_length = 37 + c
                 c = c + 1
             end
         end
@@ -104,7 +104,7 @@ function get_recycled(typename, items, take)
                     name = "vacuum:air_bottle",
                     count = c
                 })
-                run_length = 10 + c
+                run_length = 15 + c
                 c = c + 1
             end
         end
