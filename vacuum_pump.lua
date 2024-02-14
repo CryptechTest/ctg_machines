@@ -1,6 +1,6 @@
 ctg_machines.register_vacuum_pump_machine({
     tier = "LV",
-    demand = {800},
+    demand = {3000},
     speed = 5
 })
 

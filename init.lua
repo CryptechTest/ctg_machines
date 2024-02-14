@@ -30,7 +30,7 @@ dofile(default_path .. "/dust.lua")
 
 function ctg_machines.register_recycle_machine(data)
     data.tube = 1
-    data.connect_sides = {"left", "right", "back"}
+    data.connect_sides = {"left", "right", "back", "bottom"}
     data.machine_name = "recycler"
     -- data.can_insert = true
     data.typename = "compost"
@@ -41,7 +41,7 @@ end
 
 function ctg_machines.register_bottler_machine(data)
     data.tube = 1
-    data.connect_sides = {"left", "right", "back"}
+    data.connect_sides = {"left", "right", "back", "bottom"}
     data.machine_name = "bottler"
     -- data.can_insert = true
     data.typename = "bottle"
@@ -52,7 +52,7 @@ end
 
 function ctg_machines.register_vacuum_pump_machine(data)
     data.tube = 1
-    data.connect_sides = {"left", "right", "back"}
+    data.connect_sides = {"left", "right", "back", "bottom"}
     data.machine_name = "vacuum_pump"
     -- data.can_insert = true
     data.typename = "vacuum"
@@ -63,4 +63,4 @@ end
 
 dofile(default_path .. "/recycler.lua")
 dofile(default_path .. "/bottler_air.lua")
--- dofile(default_path.."/vacuum_pump.lua")
+dofile(default_path .. "/vacuum_pump.lua")

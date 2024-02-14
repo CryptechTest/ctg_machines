@@ -85,6 +85,8 @@ function ctg_machines.register_base_factory(data)
     local input_size = 1
     if typename == 'bottle' then
         input_size = 2
+    elseif typename == 'vacuum' then
+        input_size = 2
     end
     local machine_name = data.machine_name
     local machine_desc = data.machine_desc
@@ -129,7 +131,7 @@ function ctg_machines.register_base_factory(data)
             left = 1,
             right = 1,
             back = 1,
-            --top = 1,
+            -- top = 1,
             bottom = 1
         }
     }
@@ -174,51 +176,11 @@ function ctg_machines.register_base_factory(data)
                 {pipeworks.button_off, pipeworks.button_on}) .. pipeworks.button_label
         end
         while true do
-            if typename == 'vacuum' then
-                for i = 1, 2 do
-                    local node_above = minetest.get_node({
-                        x = pos.x,
-                        y = pos.y + i,
-                        z = pos.z
-                    })
-                    if node_above.name == 'air' then
-                        play_hiss(pos)
-                        -- minetest.set_node(node_above, {name = "vacuum:vacuum"})
-                        process_air(pos)
-                        break
-                    end
-                end
-            end
-            if typename == 'bottle' then
-                if (pos.y > 1000) then
-                    technic.swap_node(pos, machine_node)
-                    return
-                end
-                for i = 1, 2 do
-                    local node_above = minetest.get_node({
-                        x = pos.x,
-                        y = pos.y + i,
-                        z = pos.z
-                    })
-                    if (node_above) then
-                        if node_above.name == 'vacuum:vacuum' then
-                            technic.swap_node(pos, machine_node)
-                            return
-                        elseif node_above.name == 'default:water_source' or node_above.name == 'default:lava_source' then
-                            technic.swap_node(pos, machine_node)
-                            return
-                        end
-                        if minetest.get_item_group(node_above.name, "cracky") ~= 0 then
-                            technic.swap_node(pos, machine_node)
-                            return
-                        end
-                    end
-                end
-            end
-            local result = get_recycled(typename, inv:get_list("src"))
-            if not result then
+
+            local result = get_recycled(typename, inv:get_list("src"), false)
+            if result == nil then
                 technic.swap_node(pos, machine_node)
-                meta:set_string("infotext", machine_desc_tier .. S(" Idle"))
+                meta:set_string("infotext", machine_desc_tier .. S(" Bottles Required"))
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
                 local formspec = update_machine_formspec(data, false, input_size)
@@ -228,25 +190,16 @@ function ctg_machines.register_base_factory(data)
                 return
             end
             local item_percent = (math.floor(meta:get_int("src_time") / round(result.time * 10) * 100))
-            local formspec = update_machine_formspec2(data, true, input_size, item_percent)
-            if formspec then
-                meta:set_string("formspec", formspec .. form_buttons)
-            end
-            meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
             if (item_percent > 20) then
                 technic.swap_node(pos, machine_node .. "_active")
             elseif (math.random(1, 3) > 1) then
                 technic.swap_node(pos, machine_node .. "_wait")
             end
-            meta:set_string("infotext", machine_desc_tier .. S(" Active"))
-            if meta:get_int("src_time") < round(result.time * 10) then
-                if not powered then
-                    technic.swap_node(pos, machine_node)
-                    meta:set_string("infotext", machine_desc_tier .. S(" Unpowered"))
-                end
-                return
+            local formspec = update_machine_formspec2(data, true, input_size, item_percent)
+            if formspec then
+                meta:set_string("formspec", formspec .. form_buttons)
             end
-            -- technic.swap_node(pos, machine_node.."_wait")
+
             local output = result.output
             if type(output) ~= "table" then
                 output = {output}
@@ -272,6 +225,129 @@ function ctg_machines.register_base_factory(data)
                 meta:set_int("src_time", round(result.time * 10))
                 return
             end
+
+            meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
+            meta:set_string("infotext", machine_desc_tier .. S(" Active"))
+            if not powered then
+                technic.swap_node(pos, machine_node)
+                meta:set_string("infotext", machine_desc_tier .. S(" Unpowered"))
+                return
+            end
+
+            if meta:get_int("src_time") < round(result.time * 10) then
+                return
+            end
+
+            if typename == 'vacuum' then
+                local node_above = minetest.get_node({
+                    x = pos.x,
+                    y = pos.y + 1,
+                    z = pos.z
+                })
+                local rad = 6
+                local range = {
+                    x = rad,
+                    y = rad,
+                    z = rad
+                }
+                local pos1 = vector.subtract(pos, range)
+                local pos2 = vector.add(pos, range)
+                local nodes =
+                    minetest.find_nodes_in_area(pos1, pos2, {"air", "vacuum:atmos_thick", "vacuum:atmos_thin"})
+                if #nodes > 0 then
+                    play_hiss(pos)
+                    if pos.y > 1000 and minetest.get_modpath("ctg_airs") then
+                        if ctg_airs.process_atmos(node_above, math.random(1, 3)) == 0 then
+                            technic.swap_node(pos, machine_node)
+                            meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
+                            meta:set_int(tier .. "_EU_demand", 0)
+                            return
+                        end
+                    elseif pos.y <= 1000 then
+                        if process_air({
+                            x = pos.x,
+                            y = pos.y + 1,
+                            z = pos.z
+                        }, math.random(4, 8)) == 0 then
+                            technic.swap_node(pos, machine_node)
+                            meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
+                            meta:set_int(tier .. "_EU_demand", 0)
+                            return
+                        end
+                    end
+                    break
+                else
+                    technic.swap_node(pos, machine_node)
+                    meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
+                    meta:set_int(tier .. "_EU_demand", 0)
+                    return
+                end
+            end
+            if typename == 'bottle' then
+                local rad = 2
+                local range = {
+                    x = rad,
+                    y = rad,
+                    z = rad
+                }
+                local pos1 = vector.subtract(pos, range)
+                local pos2 = vector.add(pos, range)
+                local nodes = minetest.find_nodes_in_area(pos1, pos2, {"air", "vacuum:atmos_thick"})
+                if #nodes > 0 then
+                    for i = 1, 2 do
+                        local node_above = minetest.get_node({
+                            x = pos.x,
+                            y = pos.y + i,
+                            z = pos.z
+                        })
+                        if (node_above) then
+                            if node_above.name == 'vacuum:vacuum' then
+                                technic.swap_node(pos, machine_node)
+                                meta:set_string("infotext", machine_desc_tier .. S(" Requires Air"))
+                                meta:set_int(tier .. "_EU_demand", 0)
+                                return
+                            elseif node_above.name == 'default:water_source' or node_above.name == 'default:lava_source' then
+                                technic.swap_node(pos, machine_node)
+                                meta:set_string("infotext", machine_desc_tier .. S(" Port Clogged"))
+                                meta:set_int(tier .. "_EU_demand", 0)
+                                return
+                            end
+                            if minetest.get_item_group(node_above.name, "cracky") ~= 0 then
+                                technic.swap_node(pos, machine_node)
+                                meta:set_string("infotext", machine_desc_tier .. S(" Port Blocked"))
+                                meta:set_int(tier .. "_EU_demand", 0)
+                                return
+                            end
+                        end
+                        if pos.y > 1000 then
+                            if minetest.get_modpath("ctg_airs") then
+                                if ctg_airs.process_atmos(pos, math.random(1, 3)) == 0 then
+                                    technic.swap_node(pos, machine_node)
+                                    meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
+                                    meta:set_int(tier .. "_EU_demand", 0)
+                                    return
+                                end
+                            else
+                                return
+                            end
+                        else
+                            if process_air({
+                                x = pos.x,
+                                y = pos.y + i,
+                                z = pos.z
+                            }, 3) == 0 then
+                                technic.swap_node(pos, machine_node)
+                                meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
+                                meta:set_int(tier .. "_EU_demand", 0)
+                                return
+                            end
+                        end
+                    end
+                end
+            end
+
+            -- technic.swap_node(pos, machine_node.."_wait")
+            result = get_recycled(typename, inv:get_list("src"), true)
             meta:set_int("src_time", meta:get_int("src_time") - round(result.time * 10))
             inv:set_list("src", result.new_input)
             inv:set_list("dst", inv:get_list("dst_tmp"))
@@ -366,8 +442,9 @@ function ctg_machines.register_base_factory(data)
     minetest.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_active", {
         description = machine_desc:format(tier),
         tiles = {ltier .. "_" .. machine_name .. "_top.png", ltier .. "_" .. machine_name .. "_bottom.png",
-                 ltier .. "_" .. machine_name .. "_side.png", ltier .. "_" .. machine_name .. "_side.png",
-                 ltier .. "_" .. machine_name .. "_side.png", {
+                 ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_stone,
+                 ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_stone,
+                 ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_stone, {
             image = ltier .. "_" .. machine_name .. "_front_active.png",
             backface_culling = false,
             animation = {
@@ -448,8 +525,10 @@ function ctg_machines.register_base_factory(data)
     minetest.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_wait", {
         description = machine_desc:format(tier),
         tiles = {ltier .. "_" .. machine_name .. "_top.png", ltier .. "_" .. machine_name .. "_bottom.png",
-                 ltier .. "_" .. machine_name .. "_side.png", ltier .. "_" .. machine_name .. "_side.png",
-                 ltier .. "_" .. machine_name .. "_side.png", ltier .. "_" .. machine_name .. "_active.png"},
+                 ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_stone,
+                 ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_stone,
+                 ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_stone,
+                 ltier .. "_" .. machine_name .. "_active.png"},
         sunlight_propagates = (typename == 'compost'),
         light_source = (function()
             if typename == 'compost' then
