@@ -284,7 +284,7 @@ function ctg_machines.register_base_factory(data)
                 end
             end
             if typename == 'bottle' then
-                local rad = 2
+                local rad = 1
                 local range = {
                     x = rad,
                     y = rad,
@@ -293,7 +293,7 @@ function ctg_machines.register_base_factory(data)
                 local pos1 = vector.subtract(pos, range)
                 local pos2 = vector.add(pos, range)
                 local nodes = minetest.find_nodes_in_area(pos1, pos2, {"air", "vacuum:atmos_thick"})
-                if #nodes > 0 then
+                if #nodes > 1 then
                     local i = 1
                     local node_above = minetest.get_node({
                         x = pos.x,
