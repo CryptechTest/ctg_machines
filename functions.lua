@@ -70,6 +70,8 @@ function get_recycled(typename, items, take)
                     })
                     run_length = 15;
                 end
+            else
+                new_output = stack
             end
         end
     elseif typename == "bottle" then
@@ -88,6 +90,8 @@ function get_recycled(typename, items, take)
                 })
                 run_length = 37 + c
                 c = c + 1
+            else
+                new_output = stack
             end
         end
     elseif typename == "vacuum" then
@@ -106,6 +110,8 @@ function get_recycled(typename, items, take)
                 })
                 run_length = 15 + c
                 c = c + 1
+            else
+                new_output = stack
             end
         end
     end
