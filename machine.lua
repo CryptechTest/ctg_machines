@@ -257,7 +257,11 @@ function ctg_machines.register_base_factory(data)
                 if #nodes > 0 then
                     play_hiss(pos)
                     if pos.y > 1000 and minetest.get_modpath("ctg_airs") then
-                        if ctg_airs.process_atmos(node_above.pos, math.random(1, 3)) == 0 then
+                        if ctg_airs.process_atmos({
+                            x = pos.x,
+                            y = pos.y + i,
+                            z = pos.z
+                        }, math.random(1, 3)) == 0 then
                             technic.swap_node(pos, machine_node)
                             meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
                             meta:set_int(tier .. "_EU_demand", 0)
