@@ -8,7 +8,7 @@ function get_recycled(typename, items, take)
         for i, stack in ipairs(items) do
             if stack:get_name() == 'default:glass' then
                 -- skip over glass..
-                new_output = stack
+                new_input[i]  = stack
             elseif stack:get_name() == 'technic:coal_dust' then
                 new_input[i] = ItemStack(stack)
                 if take then
@@ -72,7 +72,7 @@ function get_recycled(typename, items, take)
                     run_length = 15;
                 end
             else
-                new_output = stack
+                new_input[i]  = stack
             end
         end
     elseif typename == "bottle" then
@@ -80,7 +80,7 @@ function get_recycled(typename, items, take)
         for i, stack in ipairs(items) do
             if stack:get_name() == 'vacuum:air_bottle' then
                 -- skip over full bottle..
-                new_output = stack
+                new_input[i] = stack
             elseif stack:get_name() == 'vessels:steel_bottle' then
                 new_input[i] = ItemStack(stack)
                 if take then
@@ -93,7 +93,7 @@ function get_recycled(typename, items, take)
                 run_length = 37 + c
                 c = c + 1
             else
-                new_output = stack
+                new_input[i] = stack
             end
         end
     elseif typename == "vacuum" then
@@ -101,7 +101,7 @@ function get_recycled(typename, items, take)
         for i, stack in ipairs(items) do
             if stack:get_name() == 'vacuum:air_bottle' then
                 -- skip over full bottle..
-                new_output = stack
+                new_input[i] = stack
             elseif stack:get_name() == 'vessels:steel_bottle' then
                 new_input[i] = ItemStack(stack)
                 if take then
@@ -114,7 +114,7 @@ function get_recycled(typename, items, take)
                 run_length = 15 + c
                 c = c + 1
             else
-                new_output = stack
+                new_input[i]  = stack
             end
         end
     end
