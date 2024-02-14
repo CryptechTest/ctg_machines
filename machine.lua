@@ -254,14 +254,16 @@ function ctg_machines.register_base_factory(data)
                 local pos2 = vector.add(pos, range)
                 local nodes =
                     minetest.find_nodes_in_area(pos1, pos2, {"air", "vacuum:atmos_thick", "vacuum:atmos_thin"})
-                if #nodes > 0 then
-                    play_hiss(pos)
+                if #nodes > 3 then
+                    if math.random(0, 2) == 0 then
+                        play_hiss(pos)
+                    end
                     if pos.y > 1000 and minetest.get_modpath("ctg_airs") then
                         if ctg_airs.process_atmos({
                             x = pos.x,
                             y = pos.y + 1,
                             z = pos.z
-                        }, math.random(1, 3)) == 0 then
+                        }, math.random(1, 3)) <= 6 then
                             technic.swap_node(pos, machine_node)
                             meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
                             meta:set_int(tier .. "_EU_demand", 0)
@@ -286,8 +288,7 @@ function ctg_machines.register_base_factory(data)
                     meta:set_int(tier .. "_EU_demand", 0)
                     return
                 end
-            end
-            if typename == 'bottle' then
+            elseif typename == 'bottle' then
                 local rad = 1
                 local range = {
                     x = rad,
@@ -325,7 +326,7 @@ function ctg_machines.register_base_factory(data)
                     end
                     if pos.y > 1000 then
                         if minetest.get_modpath("ctg_airs") then
-                            if ctg_airs.process_atmos(pos, math.random(1, 4)) == 0 then
+                            if ctg_airs.process_atmos(pos, math.random(1, 4)) <= 3 then
                                 technic.swap_node(pos, machine_node)
                                 meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
                                 meta:set_int(tier .. "_EU_demand", 0)
