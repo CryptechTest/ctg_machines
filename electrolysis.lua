@@ -1,5 +1,5 @@
 local S = minetest.get_translator(minetest.get_current_modname())
---local S = technic.getter
+-- local S = technic.getter
 
 local has_pipeworks = minetest.get_modpath("pipeworks")
 local fs_helpers = pipeworks.fs_helpers
@@ -38,11 +38,11 @@ function ctg_machines.update_formspec(data, running, enabled, has_water, percent
     local ltier = string.lower(tier)
     local formspec = nil
     if typename == 'electrolysis' or typename == 'electrolysis_admin' then
-        local btnName = "State: "
+        local btnName = "Status: "
         if enabled then
-            btnName = btnName .. "<Enabled>"
+            btnName = btnName .. "Enabled"
         else
-            btnName = btnName .. "<Disabled>"
+            btnName = btnName .. "Disabled"
         end
 
         local image = "image[4,1;1,2;" .. "hho_gen_empty.png" .. "]"
@@ -66,7 +66,7 @@ function ctg_machines.update_formspec(data, running, enabled, has_water, percent
                        "listring[current_name;src3]" .. "listring[current_player;main]" .. "image[3,1.5;1,1;" ..
                        ctg_machines.empty_bottle_image_mask .. "]" .. "image[1,1.5;1,1;" ..
                        ctg_machines.water_bottle_image_mask .. "]" .. "image[2,2.5;1,1;" ..
-                       ctg_machines.anode_image_mask .. "]" .. btnName .. "]" .. runimg -- .. "button[3,3;4,1;toggle;]"
+                       ctg_machines.anode_image_mask .. "]" .. runimg .. "button[3,3.5;4,1;toggle;" .. btnName .. "]"
     end
 
     if data.upgrade then
@@ -112,6 +112,14 @@ local function get_water(items, take)
     for i, stack in ipairs(items) do
         local group = minetest.get_item_group(stack:get_name(), "food_water")
         if group > 0 then
+            new_input = ItemStack(stack)
+            if (take) then
+                new_input:take_item(1)
+            end
+            c = c + 1
+            break
+        end
+        if stack.name == "x_farming:bottle_water" then
             new_input = ItemStack(stack)
             if (take) then
                 new_input:take_item(1)
@@ -173,6 +181,8 @@ local function has_items(pos)
     end
     local group = minetest.get_item_group(src2[1]:get_name(), "food_water")
     if group > 0 then
+        has_water = true
+    elseif src2[1]:get_name() == "x_farming:bottle_water" then
         has_water = true
     end
     if src3[1]:get_name() == 'ctg_world:nickel_ingot' then
@@ -258,8 +268,8 @@ local function out_results(pos, machine_node, machine_desc_tier, tier, do_run, d
     local inv = meta:get_inventory()
     local input1 = get_bottle(inv:get_list("src1"), do_use)
     local input2 = get_water(inv:get_list("src2"), do_run)
-    local input3 = get_anode(inv:get_list("src3"), do_run)
-    if has_inv_room(pos) then
+    local input3 = get_anode(inv:get_list("src3"), do_run and math.random(0, 2) == 0)
+    if has_inv_room(pos) and (input1 ~= nil or input2 ~= nil or input3 ~= nil) then
         out_result(pos, {input1, input2, input3}, machine_node, machine_desc_tier, tier, do_run, do_use)
         return true
     end
@@ -353,8 +363,8 @@ local function register_machine_electrolysis(data)
             return
         end
 
-        if not meta:get_int("enabled") then
-            meta:set_int("enabled", 0)
+        if meta:get_int("enabled") == nil then
+            meta:set_int("enabled", 1)
             return
         end
 
@@ -373,51 +383,76 @@ local function register_machine_electrolysis(data)
         while true do
             local enabled = meta:get_int("enabled") == 1
 
-            if (not enabled) then
+            if enabled == false then
                 technic.swap_node(pos, machine_node)
                 meta:set_string("infotext", machine_desc_tier .. S(" Disabled"))
                 meta:set_int(tier .. "_EU_demand", 0)
-                meta:set_int("src_time", 0)
+                -- meta:set_int("src_time", 0)
                 local formspec = ctg_machines.update_formspec2(data, false, enabled, false)
                 meta:set_string("formspec", formspec)
                 return
             end
 
             local has_water = get_water(inv:get_list("src2"), false) ~= nil
-            -- local formspec = ctg_machines.update_formspec(data, false, enabled, has_water, item_percent)
-            -- meta:set_string("formspec", formspec)
-            if powered and meta:get_int("src_time") < round(data.speed * 10 * 1.0) then
-                if not has_items(pos) then
-                    technic.swap_node(pos, machine_node)
-                    meta:set_string("infotext", machine_desc_tier .. S(" Idle - Missing Input"))
-                    meta:set_int(tier .. "_EU_demand", 0)
-                    meta:set_int("src_time", 0)
-                    local formspec = ctg_machines.update_formspec2(data, false, enabled, has_water)
-                    meta:set_string("formspec", formspec)
+            local has_items = has_items(pos)
+
+            if has_items == false then
+                technic.swap_node(pos, machine_node)
+                meta:set_int("active", 0)
+                meta:set_string("infotext", machine_desc_tier .. S(" Idle - Missing Input"))
+                meta:set_int(tier .. "_EU_demand", 0)
+                meta:set_int("src_time", 0)
+                local formspec = ctg_machines.update_formspec2(data, false, enabled, has_water)
+                meta:set_string("formspec", formspec)
+                return
+            end
+
+            -- do power draw and activate machine
+            meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
+            meta:set_string("infotext", machine_desc_tier .. S(" Active"))
+            technic.swap_node(pos, machine_node .. "_active")
+
+            if powered == false then
+                technic.swap_node(pos, machine_node)
+                meta:set_string("infotext", machine_desc_tier .. S(" Unpowered"))
+                local formspec = ctg_machines.update_formspec(data, false, enabled, has_water, 0)
+                meta:set_string("formspec", formspec)
+                return
+            end
+
+            if meta:get_int("active") == 0 then
+                technic.swap_node(pos, machine_node)
+                if out_results(pos, machine_node, machine_desc_tier, ltier, true, false) then
+                    -- got input, set active
+                    meta:set_int("active", 1)
                     return
-                end
-                if not out_results(pos, machine_node, machine_desc_tier, ltier, true, false) then
+                else
+                    -- reset machine
                     technic.swap_node(pos, machine_node)
                     meta:set_int("src_time", round(time_scl * 10))
-                    -- return
                 end
             end
 
-            technic.swap_node(pos, machine_node .. "_active")
-            meta:set_int(tier .. "_EU_demand", machine_demand[EU_upgrade + 1])
-            meta:set_string("infotext", machine_desc_tier .. S(" Active"))
+            if meta:get_int("active") == 0 then
+                meta:set_string("infotext", machine_desc_tier .. S(" Inactive"))
+                meta:set_int(tier .. "_EU_demand", 0)
+                local formspec = ctg_machines.update_formspec(data, false, enabled, has_water, 0)
+                meta:set_string("formspec", formspec)
+                return
+            end
+
             if meta:get_int("src_time") < round(time_scl * 10) then
                 local item_percent = (math.floor(meta:get_int("src_time") / round(time_scl * 10) * 100))
-                if not powered then
+                if not powered then -- this might not be needed cuz above?
                     technic.swap_node(pos, machine_node)
                     meta:set_string("infotext", machine_desc_tier .. S(" Unpowered"))
                     local formspec = ctg_machines.update_formspec(data, false, enabled, has_water, item_percent)
                     meta:set_string("formspec", formspec)
                     return
                 end
-                if ltier == "lv" and meta:get_int("src_time") % 250 == 0 then
+                if ltier == "lv" and meta:get_int("src_time") % 500 == 0 then
                     out_results(pos, machine_node, machine_desc_tier, ltier, false, true)
-                elseif ltier == "mv" and meta:get_int("src_time") % 150 == 0 then
+                elseif ltier == "mv" and meta:get_int("src_time") % 300 == 0 then
                     out_results(pos, machine_node, machine_desc_tier, ltier, false, true)
                 end
                 local formspec = ctg_machines.update_formspec(data, true, enabled, has_water, item_percent)
@@ -426,7 +461,7 @@ local function register_machine_electrolysis(data)
             end
 
             meta:set_int("src_time", meta:get_int("src_time") - round(time_scl * 10))
-            -- return
+            meta:set_int("active", 0)
         end
     end
 
@@ -478,6 +513,7 @@ local function register_machine_electrolysis(data)
             inv:set_size("upgrade1", 1)
             inv:set_size("upgrade2", 1)
             meta:set_int("enabled", 1)
+            meta:set_int("active", 0)
         end,
         can_dig = technic.machine_can_dig,
         allow_metadata_inventory_put = technic.machine_inventory_put,
