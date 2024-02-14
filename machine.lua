@@ -259,7 +259,7 @@ function ctg_machines.register_base_factory(data)
                     if pos.y > 1000 and minetest.get_modpath("ctg_airs") then
                         if ctg_airs.process_atmos({
                             x = pos.x,
-                            y = pos.y + i,
+                            y = pos.y + 1,
                             z = pos.z
                         }, math.random(1, 3)) == 0 then
                             technic.swap_node(pos, machine_node)
