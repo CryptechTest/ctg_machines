@@ -281,7 +281,6 @@ function ctg_machines.register_base_factory(data)
                             return
                         end
                     end
-                    break
                 else
                     technic.swap_node(pos, machine_node)
                     meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
