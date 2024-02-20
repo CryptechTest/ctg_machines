@@ -189,7 +189,7 @@ function ctg_machines.register_base_factory(data)
                 end
                 return
             end
-            local item_percent = (math.floor(meta:get_int("src_time") / round(result.time * 10) * 100))
+            local item_percent = (math.floor(meta:get_int("src_time") / round(result.time * 100) * 100))
             if (item_percent > 20) then
                 technic.swap_node(pos, machine_node .. "_active")
             elseif (math.random(1, 3) > 1) then
@@ -222,7 +222,7 @@ function ctg_machines.register_base_factory(data)
                 technic.swap_node(pos, machine_node)
                 meta:set_string("infotext", machine_desc_tier .. S(" Idle"))
                 meta:set_int(tier .. "_EU_demand", 0)
-                meta:set_int("src_time", round(result.time * 10))
+                meta:set_int("src_time", round(result.time * 100))
                 return
             end
 
@@ -234,8 +234,11 @@ function ctg_machines.register_base_factory(data)
                 return
             end
 
-            if meta:get_int("src_time") < round(result.time * 10) then
+            if typename == 'vacuum' or (meta:get_int("src_time") < round(result.time * 100) and math.random(0, 10) > 0) then
                 return
+            end
+            if meta:get_int("src_time") < round(result.time * 100) then
+                -- return
             end
 
             if typename == 'vacuum' then
@@ -255,18 +258,18 @@ function ctg_machines.register_base_factory(data)
                 local nodes =
                     minetest.find_nodes_in_area(pos1, pos2, {"air", "vacuum:atmos_thick", "vacuum:atmos_thin"})
                 if #nodes > 3 then
-                    if math.random(0, 2) == 0 then
+                    if math.random(0, 32) == 0 then
                         play_hiss(pos)
                     end
                     if pos.y > 1000 and minetest.get_modpath("ctg_airs") then
-                        if ctg_airs.process_atmos({
+                        if process_air({
                             x = pos.x,
                             y = pos.y + 1,
                             z = pos.z
                         }, math.random(1, 3)) <= 6 then
                             technic.swap_node(pos, machine_node)
                             meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
-                            meta:set_int(tier .. "_EU_demand", 0)
+                            -- meta:set_int(tier .. "_EU_demand", 0)
                             return
                         end
                     elseif pos.y <= 1000 then
@@ -277,7 +280,7 @@ function ctg_machines.register_base_factory(data)
                         }, math.random(4, 8)) == 0 then
                             technic.swap_node(pos, machine_node)
                             meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
-                            meta:set_int(tier .. "_EU_demand", 0)
+                            -- meta:set_int(tier .. "_EU_demand", 0)
                             return
                         end
                     end
@@ -297,7 +300,7 @@ function ctg_machines.register_base_factory(data)
                 local pos1 = vector.subtract(pos, range)
                 local pos2 = vector.add(pos, range)
                 local nodes = minetest.find_nodes_in_area(pos1, pos2, {"air", "vacuum:atmos_thick"})
-                if #nodes > 1 then
+                if #nodes > 5 then
                     local i = 1
                     local node_above = minetest.get_node({
                         x = pos.x,
@@ -325,10 +328,10 @@ function ctg_machines.register_base_factory(data)
                     end
                     if pos.y > 1000 then
                         if minetest.get_modpath("ctg_airs") then
-                            if ctg_airs.process_atmos(pos, math.random(1, 4)) <= 3 then
+                            if process_air(pos, math.random(1, 2)) <= 1 then
                                 technic.swap_node(pos, machine_node)
                                 meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
-                                meta:set_int(tier .. "_EU_demand", 0)
+                                -- meta:set_int(tier .. "_EU_demand", 0)
                                 return
                             end
                         else
@@ -339,24 +342,29 @@ function ctg_machines.register_base_factory(data)
                             x = pos.x,
                             y = pos.y + i,
                             z = pos.z
-                        }, 3) == 0 then
+                        }, 2) <= 1 then
                             technic.swap_node(pos, machine_node)
                             meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
-                            meta:set_int(tier .. "_EU_demand", 0)
+                            -- meta:set_int(tier .. "_EU_demand", 0)
                             return
                         end
                     end
                 else
                     technic.swap_node(pos, machine_node)
-                    meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
-                    meta:set_int(tier .. "_EU_demand", 0)
+                    meta:set_string("infotext", machine_desc_tier .. S(" Not Enough Air"))
+                    -- meta:set_int(tier .. "_EU_demand", 0)
+                    meta:set_int("src_time", meta:get_int("src_time") - round(data.speed * 10 * 2))
                     return
                 end
             end
 
+            if meta:get_int("src_time") < round(result.time * 100) then
+                return
+            end
+
             -- technic.swap_node(pos, machine_node.."_wait")
             result = get_recycled(typename, inv:get_list("src"), true)
-            meta:set_int("src_time", meta:get_int("src_time") - round(result.time * 10))
+            meta:set_int("src_time", meta:get_int("src_time") - round(result.time * 100))
             inv:set_list("src", result.new_input)
             inv:set_list("dst", inv:get_list("dst_tmp"))
 
