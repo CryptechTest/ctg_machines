@@ -90,7 +90,7 @@ function get_recycled(typename, items, take)
                     name = "vacuum:air_bottle",
                     count = c
                 })
-                run_length = 20 + c
+                run_length = 13 + c
                 c = c + 1
             else
                 new_input[i] = stack
