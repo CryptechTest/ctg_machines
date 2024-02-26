@@ -234,11 +234,8 @@ function ctg_machines.register_base_factory(data)
                 return
             end
 
-            if typename == 'vacuum' or (meta:get_int("src_time") < round(result.time * 100) and math.random(0, 10) > 0) then
+            if (meta:get_int("src_time") < round(result.time * 100) and math.random(0, 7) > 0) then
                 return
-            end
-            if meta:get_int("src_time") < round(result.time * 100) then
-                -- return
             end
 
             if typename == 'vacuum' then
@@ -257,7 +254,7 @@ function ctg_machines.register_base_factory(data)
                 local pos2 = vector.add(pos, range)
                 local nodes =
                     minetest.find_nodes_in_area(pos1, pos2, {"air", "vacuum:atmos_thick", "vacuum:atmos_thin"})
-                if #nodes > 3 then
+                if #nodes > 0 then
                     if math.random(0, 32) == 0 then
                         play_hiss(pos)
                     end
