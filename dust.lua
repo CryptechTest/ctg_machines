@@ -9,7 +9,7 @@ local function register_dust(name)
     })
 
     technic.register_compressor_recipe({
-        input = {dust .. " 7"},
+        input = {dust .. " 9"},
         output = "default:diamond"
     })
 end

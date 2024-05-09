@@ -33,7 +33,7 @@ function get_recycled(typename, items, take)
                 if (r > 5) then
                     new_output = ItemStack({
                         name = "technic:coal_dust",
-                        count = c
+                        count = 1
                     })
                 end
                 run_length = 9;
@@ -42,12 +42,18 @@ function get_recycled(typename, items, take)
                 if take then
                     new_input[i]:take_item(1)
                 end
-                run_length = 10;
+                run_length = 11;
                 local r = 0;
                 local c = 1;
                 if string.match(stack:get_name(), "diamond") then
-                    r = math.random(10, 20);
+                    r = math.random(10, 23);
                     c = math.random(1, 9);
+                elseif string.match(stack:get_name(), "corestone") then
+                    r = math.random(0, 21);
+                    c = 1;
+                elseif string.match(stack:get_name(), "stone") then
+                    r = math.random(0, 18);
+                    c = 1;
                 else
                     r = math.random(0, 20);
                     c = 1;
@@ -69,7 +75,7 @@ function get_recycled(typename, items, take)
                         name = "ctg_machines:carbon_dust",
                         count = c
                     })
-                    run_length = 15;
+                    run_length = 17;
                 end
             else
                 new_input[i] = stack
