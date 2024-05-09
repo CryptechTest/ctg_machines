@@ -1,3 +1,5 @@
+local S = minetest.get_translator("ctg_machines")
+
 local function register_dust(name)
     local lname = string.lower(name)
     lname = string.gsub(lname, ' ', '_')
