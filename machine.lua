@@ -180,7 +180,11 @@ function ctg_machines.register_base_factory(data)
             local result = get_recycled(typename, inv:get_list("src"), false)
             if result == nil then
                 technic.swap_node(pos, machine_node)
-                meta:set_string("infotext", machine_desc_tier .. S(" Bottles Required"))
+                if typename == 'bottle' then
+                    meta:set_string("infotext", machine_desc_tier .. S(" Bottles Required"))
+                else
+                    meta:set_string("infotext", machine_desc_tier .. S(" Input Required"))
+                end
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
                 local formspec = update_machine_formspec(data, false, input_size)
