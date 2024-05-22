@@ -29,6 +29,10 @@ function get_recycled(typename, items, take)
                     run_length = 8;
                 end
             elseif minetest.get_item_group(stack:get_name(), 'flammable') ~= 0 then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
                 local r = math.random(1, 10);
                 if (r > 5) then
                     new_output = ItemStack({
@@ -36,7 +40,204 @@ function get_recycled(typename, items, take)
                         count = 1
                     })
                 end
-                run_length = 9;
+                run_length = 7;
+            elseif stack:get_name() == 'technic:granite' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 70) then
+                    new_output = ItemStack({
+                        name = "technic:stone_dust",
+                        count = 1
+                    })
+                elseif (r > 56) then
+                    new_output = ItemStack({
+                        name = "technic:wrought_iron_dust",
+                        count = 1
+                    })
+                elseif (r > 53) then
+                    new_output = ItemStack({
+                        name = "technic:copper_dust",
+                        count = 1
+                    })
+                elseif (r > 50) then
+                    new_output = ItemStack({
+                        name = "technic:zinc_dust",
+                        count = 1
+                    })
+                elseif (r > 48) then
+                    new_output = ItemStack({
+                        name = "default:obsidian_shard",
+                        count = 1
+                    })
+                elseif (r > 47) then
+                    new_output = ItemStack({
+                        name = "ctg_world:titanium_lump",
+                        count = 1
+                    })
+                elseif (r > 43) then
+                    new_output = ItemStack({
+                        name = "technic:uranium0_dust",
+                        count = 1
+                    })
+                elseif (r > 39) then
+                    new_output = ItemStack({
+                        name = "technic:tin_dust",
+                        count = 1
+                    })
+                end
+                run_length = 10;
+            elseif stack:get_name() == 'technic:marble' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 70) then
+                    new_output = ItemStack({
+                        name = "technic:stone_dust",
+                        count = 1
+                    })
+                elseif (r > 66) then
+                    new_output = ItemStack({
+                        name = "ctg_machines:aluminum_dust",
+                        count = 1
+                    })
+                elseif (r > 52) then
+                    new_output = ItemStack({
+                        name = "default:clay_lump",
+                        count = 1
+                    })
+                elseif (r > 50) then
+                    new_output = ItemStack({
+                        name = "technic:wrought_iron_dust",
+                        count = 1
+                    })
+                end
+                run_length = 10;
+            elseif minetest.get_item_group(stack:get_name(), 'corestone') ~= 0 then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local g = minetest.get_item_group(stack:get_name(), 'corestone')
+                if g == 1 or g == 3 or g == 5 then -- stone & cobble
+                    local r = math.random(1, 100);
+                    if (r > 96) then
+                        new_output = ItemStack({
+                            name = "technic:gold_dust",
+                            count = 1
+                        })
+                    elseif (r > 89) then
+                        new_output = ItemStack({
+                            name = "default:mese_crystal_fragment",
+                            count = 1
+                        })
+                    elseif (r > 86) then
+                        new_output = ItemStack({
+                            name = "ctg_world:titanium_lump",
+                            count = 1
+                        })
+                    elseif (r > 85) then
+                        new_output = ItemStack({
+                            name = "technic:mithril_dust",
+                            count = 1
+                        })
+                    end
+                elseif g == 2 or g == 6 then -- glow stone & cobble
+                    local r = math.random(1, 100);
+                    if (r > 55) then
+                        new_output = ItemStack({
+                            name = "default:mese_crystal_fragment",
+                            count = 1
+                        })
+                    elseif (r > 42) then
+                        new_output = ItemStack({
+                            name = "technic:chromium_dust",
+                            count = 1
+                        })
+                    elseif (r > 33) then
+                        new_output = ItemStack({
+                            name = "technic:uranium0_dust",
+                            count = 1
+                        })
+                    end
+                end
+                run_length = 10;
+            elseif stack:get_name() == 'default:silver_sand' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 93) then
+                    new_output = ItemStack({
+                        name = "technic:silver_dust",
+                        count = 1
+                    })
+                elseif (r > 72) then
+                    new_output = ItemStack({
+                        name = "saltd:salt_crystals",
+                        count = 1
+                    })
+                end
+                run_length = 8;
+            elseif stack:get_name() == 'obsidian' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 50) then
+                    new_output = ItemStack({
+                        name = "basic_materials:silicon",
+                        count = 1
+                    })
+                elseif (r > 45) then
+                    new_output = ItemStack({
+                        name = "ctg_machines:aluminum_dust",
+                        count = 1
+                    })
+                elseif (r > 43) then
+                    new_output = ItemStack({
+                        name = "technic:sulfur_lump",
+                        count = 1
+                    })
+                end
+                run_length = 11;
+            elseif stack:get_name() == 'technic:rubber' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 99) then
+                    new_output = ItemStack({
+                        name = "technic:sulfur_lump",
+                        count = 1
+                    })
+                end
+                run_length = 8;
+            elseif stack:get_name() == 'default:dirt' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 50) then
+                    new_output = ItemStack({
+                        name = "technic:stone_dust",
+                        count = 1
+                    })
+                elseif (r > 0) then
+                    new_output = ItemStack({
+                        name = "default:clay_lump",
+                        count = 1
+                    })
+                end
+                run_length = 7;
             elseif stack:get_name() ~= "" then
                 new_input[i] = ItemStack(stack)
                 if take then
