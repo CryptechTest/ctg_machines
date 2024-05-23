@@ -43,3 +43,8 @@ register_dust("Aluminum", {
     input_count = 2,
     ingot = "ctg_world:aluminum_ingot"
 })
+
+technic.register_compressor_recipe({
+    input = {"technic:coal_dust 2"},
+    output = "default:coal_lump"
+})

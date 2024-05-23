@@ -123,7 +123,7 @@ function get_recycled(typename, items, take)
                     new_input[i]:take_item(1)
                 end
                 local g = minetest.get_item_group(stack:get_name(), 'corestone')
-                if g == 1 or g == 3 or g == 5 then -- stone & cobble
+                if g == 1 or g == 2 or g == 5 then -- stone & cobble
                     local r = math.random(1, 100);
                     if (r > 96) then
                         new_output = ItemStack({
@@ -146,7 +146,7 @@ function get_recycled(typename, items, take)
                             count = 1
                         })
                     end
-                elseif g == 2 or g == 6 then -- glow stone & cobble
+                elseif g == 3 or g == 6 then -- glow stone & cobble
                     local r = math.random(1, 100);
                     if (r > 55) then
                         new_output = ItemStack({
