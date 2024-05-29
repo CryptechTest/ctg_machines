@@ -177,7 +177,7 @@ function ctg_machines.register_base_factory(data)
         end
         while true do
 
-            local result = get_recycled(typename, inv:get_list("src"), false)
+            local result = ctg_machines.get_recycled(typename, inv:get_list("src"), false)
             if result == nil then
                 technic.swap_node(pos, machine_node)
                 if typename == 'bottle' then
@@ -204,7 +204,7 @@ function ctg_machines.register_base_factory(data)
                 meta:set_string("formspec", formspec .. form_buttons)
             end
 
-            local output = result.output
+            local output = result.output or result.outputs
             if type(output) ~= "table" then
                 output = {output}
             end
@@ -364,7 +364,7 @@ function ctg_machines.register_base_factory(data)
             end
 
             -- technic.swap_node(pos, machine_node.."_wait")
-            result = get_recycled(typename, inv:get_list("src"), true)
+            result = ctg_machines.get_recycled(typename, inv:get_list("src"), true)
             meta:set_int("src_time", meta:get_int("src_time") - round(result.time * 100))
             inv:set_list("src", result.new_input)
             inv:set_list("dst", inv:get_list("dst_tmp"))
