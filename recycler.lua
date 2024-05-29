@@ -1,13 +1,13 @@
 ctg_machines.register_recycle_machine({
     tier = "LV",
-    demand = {300},
-    speed = 2
+    demand = {400},
+    speed = 5
 })
 
 ctg_machines.register_recycle_machine({
     tier = "MV",
-    demand = {700},
-    speed = 6
+    demand = {1000},
+    speed = 13
 })
 
 minetest.register_craft({

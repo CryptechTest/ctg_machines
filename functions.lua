@@ -1,8 +1,9 @@
 local S = minetest.get_translator("ctg_machines")
 
-function get_recycled(typename, items, take)
+function ctg_machines.get_recycled(typename, items, take)
     local new_input = {}
     local new_output = nil
+    local new_outputs = {}
     local run_length = 0;
     if typename == "compost" then
         for i, stack in ipairs(items) do
@@ -165,7 +166,7 @@ function get_recycled(typename, items, take)
                         })
                     end
                 end
-                run_length = 10;
+                run_length = 11;
             elseif stack:get_name() == 'default:silver_sand' then
                 new_input[i] = ItemStack(stack)
                 if take then
@@ -236,6 +237,211 @@ function get_recycled(typename, items, take)
                         name = "default:clay_lump",
                         count = 1
                     })
+                end
+                run_length = 7;
+            elseif stack:get_name() == "default:clay_lump" then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 95) then
+                    new_output = ItemStack({
+                        name = "basic_materials:silicon",
+                        count = 1
+                    })
+                elseif (r > 89) then
+                    new_output = ItemStack({
+                        name = "ctg_machines:aluminum_dust",
+                        count = 1
+                    })
+                elseif (r > 88) then
+                    new_output = ItemStack({
+                        name = "technic:chromium_dust",
+                        count = 1
+                    })
+                end
+                run_length = 5;
+            elseif string.match(stack:get_name(), 'clay') and stack:get_name() ~= "default:clay_lump" then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 75) then
+                    new_output = ItemStack({
+                        name = "basic_materials:silicon",
+                        count = 2
+                    })
+                elseif (r > 69) then
+                    new_output = ItemStack({
+                        name = "ctg_machines:aluminum_dust",
+                        count = 1
+                    })
+                elseif (r > 67) then
+                    new_output = ItemStack({
+                        name = "technic:chromium_dust",
+                        count = 1
+                    })
+                end
+                run_length = 6;
+            elseif stack:get_name() == 'technic:chromium_block' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 0) then
+                    new_outputs = {ItemStack({
+                        name = "technic:chromium_dust",
+                        count = 12
+                    }), ItemStack({
+                        name = "technic:wrought_iron_dust",
+                        count = 4
+                    }), ItemStack({
+                        name = "ctg_machines:aluminum_dust",
+                        count = 4
+                    })}
+                end
+                run_length = 7;
+            elseif stack:get_name() == 'default:copperblock' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 0) then
+                    new_outputs = {ItemStack({
+                        name = "technic:copper_dust",
+                        count = 14
+                    }), ItemStack({
+                        name = "technic:wrought_iron_dust",
+                        count = 1
+                    }), ItemStack({
+                        name = "technic:sulfur_dust",
+                        count = 1
+                    })}
+                end
+                run_length = 7;
+            elseif stack:get_name() == 'default:goldblock' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 0) then
+                    new_outputs = {ItemStack({
+                        name = "technic:gold_dust",
+                        count = 17
+                    }), ItemStack({
+                        name = "technic:silver_dust",
+                        count = 1
+                    })}
+                end
+                run_length = 9;
+            elseif stack:get_name() == 'default:steelblock' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 0) then
+                    new_outputs = {ItemStack({
+                        name = "technic:wrought_iron_dust",
+                        count = 16
+                    }), ItemStack({
+                        name = "ctg_machines:aluminum_dust",
+                        count = 2
+                    })}
+                end
+                run_length = 7;
+            elseif stack:get_name() == 'moreores:silver_block' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 0) then
+                    new_outputs = {ItemStack({
+                        name = "technic:silver_dust",
+                        count = 10
+                    }), ItemStack({
+                        name = "technic:copper_dust",
+                        count = 5
+                    }), ItemStack({
+                        name = "technic:lead_dust",
+                        count = 6
+                    })}
+                end
+                run_length = 8;
+            elseif stack:get_name() == 'default:tinblock' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 0) then
+                    new_outputs = {ItemStack({
+                        name = "technic:tin_dust",
+                        count = 10
+                    }), ItemStack({
+                        name = "technic:copper_dust",
+                        count = 1
+                    }), ItemStack({
+                        name = "technic:wrought_iron_dust",
+                        count = 1
+                    })}
+                end
+                run_length = 7;
+            elseif stack:get_name() == 'technic:uranium0_block' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 0) then
+                    new_outputs = {ItemStack({
+                        name = "technic:uranium0_dust",
+                        count = 10
+                    }), ItemStack({
+                        name = "technic:copper_dust",
+                        count = 2
+                    }), ItemStack({
+                        name = "technic:wrought_iron_dust",
+                        count = 1
+                    }), ItemStack({
+                        name = "technic:silver_dust",
+                        count = 1
+                    })}
+                end
+                run_length = 10;
+            elseif stack:get_name() == 'default:desert_stone' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 96) then
+                    new_output = ItemStack({
+                        name = "technic:wrought_iron_dust",
+                        count = 1
+                    })
+                end
+                run_length = 6;
+            elseif stack:get_name() == 'ctg_world:nickel_block' then
+                new_input[i] = ItemStack(stack)
+                if take then
+                    new_input[i]:take_item(1)
+                end
+                local r = math.random(1, 100);
+                if (r > 0) then
+                    new_outputs = {ItemStack({
+                        name = "ctg_world:nickel_dust",
+                        count = 16
+                    }), ItemStack({
+                        name = "technic:copper_dust",
+                        count = 2
+                    })}
                 end
                 run_length = 7;
             elseif stack:get_name() ~= "" then
@@ -329,7 +535,8 @@ function get_recycled(typename, items, take)
         return {
             time = run_length,
             new_input = new_input,
-            output = new_output
+            output = new_output,
+            outputs = new_outputs
         }
     else
         return nil
