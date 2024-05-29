@@ -64,3 +64,4 @@ end
 dofile(default_path .. "/recycler.lua")
 dofile(default_path .. "/bottler_air.lua")
 dofile(default_path .. "/vacuum_pump.lua")
+dofile(default_path .. "/charging_bay.lua")
