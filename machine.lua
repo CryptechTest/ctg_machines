@@ -22,7 +22,7 @@ local function round(v)
     return math.floor(v + 0.5)
 end
 
-function update_machine_formspec2(data, enabled, size, percent)
+local function update_machine_formspec2(data, enabled, size, percent)
     local input_size = size
     local machine_desc = data.machine_desc
     local typename = data.typename
@@ -78,6 +78,10 @@ function update_machine_formspec2(data, enabled, size, percent)
                        "listring[current_player;main]"
     end
     return formspec
+end
+
+local function update_machine_formspec(data, enabled, size)
+    return update_machine_formspec2(data, enabled, size, 0)
 end
 
 function ctg_machines.register_base_factory(data)

@@ -724,10 +724,6 @@ function process_air(pos, size)
     return fill_atmos_near(pos, size)
 end
 
-function update_machine_formspec(data, enabled, size)
-    return update_machine_formspec2(data, enabled, size, 0)
-end
-
 function play_hiss(pos)
     minetest.sound_play("vacuum_hiss", {
         pos = pos,
