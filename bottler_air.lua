@@ -1,7 +1,8 @@
 ctg_machines.register_bottler_machine({
     tier = "MV",
-    demand = {2400},
-    speed = 7
+    demand = {2000, 1900, 1750},
+    speed = 7,
+    upgrade = 1
 })
 
 minetest.register_craft({
@@ -12,8 +13,9 @@ minetest.register_craft({
 
 ctg_machines.register_bottler_machine({
     tier = "LV",
-    demand = {1250},
-    speed = 5
+    demand = {1050, 800, 600},
+    speed = 5,
+    upgrade = 1
 })
 
 minetest.register_craft({
