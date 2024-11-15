@@ -7,7 +7,7 @@ ctg_machines.register_bottler_machine({
 minetest.register_craft({
     output = "ctg_machines:mv_bottler 1",
     recipe = {{"ctg_world:titanium_ingot", "ctg_world:titanium_ingot", "ctg_world:titanium_ingot"},
-              {"", "ctg_machines:lv_bottler", ""}, {"", "basic_materials:motor", ""}}
+              {"", "ctg_machines:lv_bottler", ""}, {"pipeworks:tube_1", "basic_materials:motor", "pipeworks:tube_1"}}
 })
 
 ctg_machines.register_bottler_machine({
