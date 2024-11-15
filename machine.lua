@@ -131,11 +131,9 @@ function ctg_machines.register_base_factory(data)
             return inv:room_for_item("src", stack)
         end,
         connect_sides = {
-            front = 1,
             left = 1,
             right = 1,
             back = 1,
-            -- top = 1,
             bottom = 1
         }
     }
@@ -144,6 +142,16 @@ function ctg_machines.register_base_factory(data)
     end
     if data.insert_object then
         tube.insert_object = data.insert_object
+    end
+
+    if data.typename == "compost" then
+        tube.connect_sides = {
+            front = 1,
+            left = 1,
+            right = 1,
+            back = 1,
+            bottom = 1
+        }
     end
 
     local run = function(pos, node)
