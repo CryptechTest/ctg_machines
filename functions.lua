@@ -717,14 +717,14 @@ local fill_atmos_near = function(pos, r)
     return count
 end
 
-function process_air(pos, size)
+function ctg_machines.process_air(pos, size)
     if pos == nil then
         return 0;
     end
     return fill_atmos_near(pos, size)
 end
 
-function play_hiss(pos)
+function ctg_machines.play_hiss(pos)
     minetest.sound_play("vacuum_hiss", {
         pos = pos,
         gain = 0.5
