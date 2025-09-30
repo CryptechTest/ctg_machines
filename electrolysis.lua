@@ -306,6 +306,7 @@ local function register_machine_electrolysis(data)
     local formspec = ctg_machines.update_formspec2(data, false, false, false)
 
     local tube = {
+        input_inventory = 'dst',
         insert_object = function(pos, node, stack, direction)
             local meta = minetest.get_meta(pos)
             local inv = meta:get_inventory()

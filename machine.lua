@@ -119,6 +119,7 @@ function ctg_machines.register_base_factory(data)
     local formspec = update_machine_formspec(data, false, input_size)
 
     local tube = {
+        input_inventory = 'dst',
         insert_object = function(pos, node, stack, direction)
             local meta = minetest.get_meta(pos)
             local inv = meta:get_inventory()
