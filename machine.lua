@@ -22,13 +22,21 @@ local function round(v)
     return math.floor(v + 0.5)
 end
 
-local function update_machine_formspec2(data, enabled, size, percent)
+local function update_machine_formspec(data, meta, size, percent)
     local input_size = size
     local machine_desc = data.machine_desc
     local typename = data.typename
     local tier = data.tier
     local ltier = string.lower(tier)
     local formspec = nil
+    local percent = percent ~= nil and percent or 0
+    local enabled = meta:get_int("enabled") > 0
+    local eu_input = meta:get_int(tier .. "_EU_input")
+    local eu_demand = meta:get_int(tier .. "_EU_demand")
+    local power_field = "label[0.3,0.8;" .. minetest.colorize('#21daff', "Energy Stats") .. "]"
+    local input_field = "label[0.3,1.2;Input]label[0.3,1.55;" .. minetest.colorize('#03fc56', "+" .. eu_input) .. "]"
+    local demand_field = "label[0.3,1.9;Demand]label[0.3,2.25;" .. minetest.colorize('#fca903', "-" .. eu_demand) .. "]"
+    local power_fields = power_field .. input_field .. demand_field
     if (typename == 'compost') then
         local image = ltier .. "_recycler_front.png"
         if (enabled) then
@@ -40,7 +48,7 @@ local function update_machine_formspec2(data, enabled, size, percent)
                        "image[4,2.0;1,1;gui_furnace_arrow_bg.png^[lowpart:" .. tostring(percent) ..
                        ":gui_furnace_arrow_fg.png^[transformR270]" .. "listring[current_name;dst]" ..
                        "listring[current_player;main]" .. "listring[current_name;src]" ..
-                       "listring[current_player;main]"
+                       "listring[current_player;main]" .. power_fields
 
     elseif typename == 'bottle' then
         local image = "bottler_gauge.png"
@@ -54,7 +62,7 @@ local function update_machine_formspec2(data, enabled, size, percent)
         "image[4,2.0;1,1;gui_furnace_arrow_bg.png^[lowpart:" .. tostring(percent) ..
                        ":gui_furnace_arrow_fg.png^[transformR270]" .. "listring[current_name;dst]" ..
                        "listring[current_player;main]" .. "listring[current_name;src]" ..
-                       "listring[current_player;main]"
+                       "listring[current_player;main]" .. power_fields
 
     elseif typename == 'vacuum' then
         local image = "bottler_gauge.png"
@@ -68,7 +76,7 @@ local function update_machine_formspec2(data, enabled, size, percent)
         "image[4,2.0;1,1;gui_furnace_arrow_bg.png^[lowpart:" .. tostring(percent) ..
                        ":gui_furnace_arrow_fg.png^[transformR270]" .. "listring[current_name;dst]" ..
                        "listring[current_player;main]" .. "listring[current_name;src]" ..
-                       "listring[current_player;main]"
+                       "listring[current_player;main]" .. power_fields
     end
 
     if data.upgrade then
@@ -78,10 +86,6 @@ local function update_machine_formspec2(data, enabled, size, percent)
                        "listring[current_player;main]"
     end
     return formspec
-end
-
-local function update_machine_formspec(data, enabled, size)
-    return update_machine_formspec2(data, enabled, size, 0)
 end
 
 function ctg_machines.register_base_factory(data)
@@ -115,8 +119,6 @@ function ctg_machines.register_base_factory(data)
     for k, v in pairs(groups) do
         active_groups[k] = v
     end
-
-    local formspec = update_machine_formspec(data, false, input_size)
 
     local tube = {
         input_inventory = 'dst',
@@ -200,7 +202,7 @@ function ctg_machines.register_base_factory(data)
                 end
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
-                local formspec = update_machine_formspec(data, false, input_size)
+                local formspec = update_machine_formspec(data, meta, input_size)
                 if (formspec) then
                     meta:set_string("formspec", formspec .. form_buttons)
                 end
@@ -212,7 +214,7 @@ function ctg_machines.register_base_factory(data)
             elseif (math.random(1, 3) > 1) then
                 technic.swap_node(pos, machine_node .. "_wait")
             end
-            local formspec = update_machine_formspec2(data, true, input_size, item_percent)
+            local formspec = update_machine_formspec(data, meta, input_size, item_percent)
             if formspec then
                 meta:set_string("formspec", formspec .. form_buttons)
             end
@@ -414,12 +416,13 @@ function ctg_machines.register_base_factory(data)
 
             meta:set_string("infotext", machine_desc:format(tier))
             meta:set_int("tube_time", 0)
-            meta:set_string("formspec", formspec .. form_buttons)
             local inv = meta:get_inventory()
             inv:set_size("src", input_size)
             inv:set_size("dst", 4)
             inv:set_size("upgrade1", 1)
             inv:set_size("upgrade2", 1)
+            local formspec = update_machine_formspec(data, meta, input_size)
+            meta:set_string("formspec", formspec .. form_buttons)
         end,
         can_dig = technic.machine_can_dig,
         allow_metadata_inventory_put = technic.machine_inventory_put,
@@ -443,7 +446,7 @@ function ctg_machines.register_base_factory(data)
                 form_buttons = fs_helpers.cycling_button(meta, pipeworks.button_base, "splitstacks",
                     {pipeworks.button_off, pipeworks.button_on}) .. pipeworks.button_label
             end
-            -- local formspec = update_machine_formspec(data, false)
+            local formspec = update_machine_formspec(data, meta, input_size)
             meta:set_string("formspec", formspec .. form_buttons)
         end,
         mesecons = {
@@ -527,6 +530,7 @@ function ctg_machines.register_base_factory(data)
                 form_buttons = fs_helpers.cycling_button(meta, pipeworks.button_base, "splitstacks",
                     {pipeworks.button_off, pipeworks.button_on}) .. pipeworks.button_label
             end
+            local formspec = update_machine_formspec(data, meta, input_size)
             meta:set_string("formspec", formspec .. form_buttons)
         end,
         mesecons = {
@@ -602,6 +606,7 @@ function ctg_machines.register_base_factory(data)
                 form_buttons = fs_helpers.cycling_button(meta, pipeworks.button_base, "splitstacks",
                     {pipeworks.button_off, pipeworks.button_on}) .. pipeworks.button_label
             end
+            local formspec = update_machine_formspec(data, meta, input_size)
             meta:set_string("formspec", formspec .. form_buttons)
         end,
         mesecons = {
