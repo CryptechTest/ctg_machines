@@ -499,7 +499,7 @@ function ctg_machines.register_base_factory(data)
             if typename == 'compost' then
                 return "light"
             else
-                return ""
+                return "light"
             end
         end)(),
         paramtype2 = "facedir",
@@ -575,7 +575,7 @@ function ctg_machines.register_base_factory(data)
             if typename == 'compost' then
                 return "light"
             else
-                return ""
+                return "light"
             end
         end)(),
         paramtype2 = "facedir",
