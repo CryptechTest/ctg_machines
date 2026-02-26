@@ -26,7 +26,7 @@ if core.get_modpath("unified_inventory") then
 end
 
 minetest.register_node("ctg_machines:hydrogen_bottle", {
-	description = S("Hydrogen Bottle"),
+	description = ("Hydrogen Bottle"),
 	drawtype = "plantlike",
 	tiles = {ctg_machines.hydrogen_bottle_image},
 	inventory_image = ctg_machines.hydrogen_bottle_image,
