@@ -20,7 +20,7 @@ local function register_dust(name, data)
     if data.input ~= nil then
         technic.register_grinder_recipe({
             input = {data.input},
-            output = dust
+            output = dust ..  " 2"
         })
     end
 
