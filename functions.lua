@@ -463,10 +463,10 @@ function ctg_machines.get_recycled(typename, items, take)
                     r = math.random(0, 18);
                     c = 1;
                 elseif string.match(stack_name, "cobblestone") then
-                    r = math.random(0, 17);
+                    r = math.random(0, 15);
                     c = 1;
                 else
-                    r = math.random(0, 20);
+                    r = math.random(0, 17);
                     c = 1;
                 end
                 if (stack_name == "ctg_machines:carbon_dust") and r > 6 then
