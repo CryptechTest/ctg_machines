@@ -452,20 +452,24 @@ function ctg_machines.get_recycled(typename, items, take)
                 run_length = 11;
                 local r = 0;
                 local c = 1;
-                if string.match(stack:get_name(), "diamond") then
+                local stack_name = stack:get_name();
+                if string.match(stack_name, "diamond") then
                     r = math.random(10, 23);
                     c = math.random(1, 9);
-                elseif string.match(stack:get_name(), "corestone") then
+                elseif string.match(stack_name, "corestone") then
                     r = math.random(0, 21);
                     c = 1;
-                elseif string.match(stack:get_name(), "stone") then
+                elseif string.match(stack_name, "stone") or string.match(stack_name, "Stone") then
                     r = math.random(0, 18);
+                    c = 1;
+                elseif string.match(stack_name, "cobblestone") then
+                    r = math.random(0, 17);
                     c = 1;
                 else
                     r = math.random(0, 20);
                     c = 1;
                 end
-                if (stack:get_name() == "ctg_machines:carbon_dust") and r > 6 then
+                if (stack_name == "ctg_machines:carbon_dust") and r > 6 then
                     new_output = ItemStack({
                         name = "default:glass",
                         count = 1
