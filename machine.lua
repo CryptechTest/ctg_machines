@@ -29,7 +29,7 @@ local function update_machine_formspec(data, meta, size, percent)
     local tier = data.tier
     local ltier = string.lower(tier)
     local formspec = nil
-    local percent = percent ~= nil and percent or 0
+    local percent = percent ~= nil and math.ceil(percent) or 0
     local enabled = meta:get_int("enabled") > 0
     local eu_input = meta:get_int(tier .. "_EU_input")
     local eu_demand = meta:get_int(tier .. "_EU_demand")
@@ -153,6 +153,7 @@ function ctg_machines.register_base_factory(data)
             left = 1,
             right = 1,
             back = 1,
+            top = 1,
             bottom = 1
         }
     end
@@ -183,7 +184,7 @@ function ctg_machines.register_base_factory(data)
 
         local powered = eu_input >= machine_demand[EU_upgrade + 1]
         if powered then
-            meta:set_int("src_time", meta:get_int("src_time") + round(data.speed * 10 * 1.0))
+            meta:set_int("src_time", meta:get_int("src_time") + round(data.speed * 10) + math.random(0,1))
         end
         local form_buttons = ""
         if not string.find(node.name, ":lv_") then
@@ -202,21 +203,28 @@ function ctg_machines.register_base_factory(data)
                 end
                 meta:set_int(tier .. "_EU_demand", 0)
                 meta:set_int("src_time", 0)
-                local formspec = update_machine_formspec(data, meta, input_size)
+                local formspec = update_machine_formspec(data, meta, input_size, 0)
                 if (formspec) then
                     meta:set_string("formspec", formspec .. form_buttons)
                 end
                 return
             end
-            local item_percent = (math.floor(meta:get_int("src_time") / round(result.time * 100) * 100))
-            if (item_percent > 20) then
+            local setup_result = false
+            if not meta:get_int("result_time") or meta:get_int('result_time') <= 0 then
+                setup_result = true
+                meta:set_int("result_time", result.time * 100) 
+            end
+            local item_percent = math.floor((meta:get_int("src_time") / meta:get_int("result_time")) * 100)
+            if (item_percent > 10) then
                 technic.swap_node(pos, machine_node .. "_active")
             elseif (math.random(1, 3) > 1) then
                 technic.swap_node(pos, machine_node .. "_wait")
             end
-            local formspec = update_machine_formspec(data, meta, input_size, item_percent)
-            if formspec then
-                meta:set_string("formspec", formspec .. form_buttons)
+            if setup_result or item_percent > 0 then
+                local formspec = update_machine_formspec(data, meta, input_size, item_percent)
+                if formspec then
+                    meta:set_string("formspec", formspec .. form_buttons)
+                end
             end
 
             local output = result.output or result.outputs
@@ -241,7 +249,7 @@ function ctg_machines.register_base_factory(data)
                 technic.swap_node(pos, machine_node)
                 meta:set_string("infotext", machine_desc_tier .. S(" Idle"))
                 meta:set_int(tier .. "_EU_demand", 0)
-                meta:set_int("src_time", round(result.time * 100))
+                meta:set_int("src_time", round(result.time * 100) - 1)
                 return
             end
 
@@ -253,11 +261,10 @@ function ctg_machines.register_base_factory(data)
                 return
             end
 
-            if (meta:get_int("src_time") < round(result.time * 100) and math.random(0, 7) > 0) then
-                return
-            end
-
             if typename == 'vacuum' then
+                if meta:get_int("src_time") < meta:get_int("result_time")and math.random(0, 10) > 0 then
+                    return
+                end
                 local node_above = minetest.get_node({
                     x = pos.x,
                     y = pos.y + 1,
@@ -307,6 +314,9 @@ function ctg_machines.register_base_factory(data)
                     return
                 end
             elseif typename == 'bottle' then
+                if meta:get_int("src_time") < meta:get_int("result_time") and math.random(0, 8) > 0 then
+                    return
+                end
                 local rad = 1
                 local range = {
                     x = rad,
@@ -374,18 +384,29 @@ function ctg_machines.register_base_factory(data)
                 end
             end
 
-            if meta:get_int("src_time") < round(result.time * 100) then
+            if meta:get_int("src_time") < meta:get_int("result_time") then
                 return
             end
 
             -- technic.swap_node(pos, machine_node.."_wait")
             result = ctg_machines.get_recycled(typename, inv:get_list("src"), true)
-            meta:set_int("src_time", meta:get_int("src_time") - round(result.time * 100))
+            --meta:set_int("src_time", meta:get_int("src_time") - round(result.time * 100))
+            meta:set_int("src_time", 0)
+            meta:set_int("result_time",0) 
             inv:set_list("src", result.new_input)
             inv:set_list("dst", inv:get_list("dst_tmp"))
 
             if typename == 'bottle' and math.random(1, 5) > 3 then
                 ctg_machines.play_hiss(pos)
+            elseif typename == "compost" then
+                core.after(0, function()
+                    core.sound_play("ctg_energy_pulse", {
+                        pos = pos,
+                        gain = 0.675,
+                        pitch = 0.88,
+                        max_hear_distance = 3.51
+                    })
+                end)
             end
         end
     end

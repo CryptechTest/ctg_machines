@@ -30,7 +30,7 @@ dofile(default_path .. "/dust.lua")
 
 function ctg_machines.register_recycle_machine(data)
     data.tube = 1
-    data.connect_sides = {"left", "right", "back", "bottom"}
+    data.connect_sides = {"left", "right", "back", "top", "bottom"}
     data.machine_name = "recycler"
     -- data.can_insert = true
     data.typename = "compost"
