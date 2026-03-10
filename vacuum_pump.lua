@@ -4,7 +4,7 @@ ctg_machines.register_vacuum_pump_machine({
     speed = 6
 })
 
-minetest.register_craft({
+core.register_craft({
     output = "ctg_machines:lv_vacuum_pump 1",
     recipe = {{"ctg_world:nickel_ingot", "technic:gold_dust", "ctg_world:nickel_ingot"},
               {"pipeworks:tube_1", "vacuum:airpump", "pipeworks:tube_1"},

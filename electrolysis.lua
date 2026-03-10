@@ -1,7 +1,7 @@
-local S = minetest.get_translator(minetest.get_current_modname())
+local S = core.get_translator(core.get_current_modname())
 -- local S = technic.getter
 
-local has_pipeworks = minetest.get_modpath("pipeworks")
+local has_pipeworks = core.get_modpath("pipeworks")
 local fs_helpers = pipeworks.fs_helpers
 
 local tube_entry_wood = ""
@@ -110,7 +110,7 @@ local function get_water(items, take)
     local new_input = nil
     local c = 0;
     for i, stack in ipairs(items) do
-        local group = minetest.get_item_group(stack:get_name(), "food_water")
+        local group = core.get_item_group(stack:get_name(), "food_water")
         if group > 0 then
             new_input = ItemStack(stack)
             if (take) then
@@ -166,7 +166,7 @@ local function has_items(pos)
     if not pos then
         return nil
     end
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
     local src1 = inv:get_list("src1")
     local src2 = inv:get_list("src2")
@@ -179,7 +179,7 @@ local function has_items(pos)
     if src1[1]:get_name() == 'vessels:steel_bottle' and src1[1]:get_count() > 1 then
         has_bottle = true
     end
-    local group = minetest.get_item_group(src2[1]:get_name(), "food_water")
+    local group = core.get_item_group(src2[1]:get_name(), "food_water")
     if group > 0 then
         has_water = true
     elseif src2[1]:get_name() == "x_farming:bottle_water" then
@@ -199,7 +199,7 @@ local function out_result(pos, ninput, machine_node, machine_desc_tier, tier, do
     if do_run then
         table.insert(output, "vessels:glass_bottle")
     end
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
     if type(output) ~= "table" then
         output = {output}
@@ -240,7 +240,7 @@ end
 
 local function has_inv_room(pos)
     local output_stacks = {"ctg_machines:hydrogen_bottle", "vacuum:air_bottle", "vessels:glass_bottle"}
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
     local room_for_output = true
     inv:set_size("dst_tmp2", inv:get_size("dst"))
@@ -264,7 +264,7 @@ local function has_inv_room(pos)
 end
 
 local function out_results(pos, machine_node, machine_desc_tier, tier, do_run, do_use)
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
     local input1 = get_bottle(inv:get_list("src1"), do_use)
     local input2 = get_water(inv:get_list("src2"), do_run)
@@ -283,7 +283,7 @@ local function register_machine_electrolysis(data)
     local tier = data.tier
     local ltier = string.lower(tier)
 
-    data.modname = data.modname or minetest.get_current_modname()
+    data.modname = data.modname or core.get_current_modname()
 
     local groups = {
         cracky = 2,
@@ -308,7 +308,7 @@ local function register_machine_electrolysis(data)
     local tube = {
         input_inventory = 'dst',
         insert_object = function(pos, node, stack, direction)
-            local meta = minetest.get_meta(pos)
+            local meta = core.get_meta(pos)
             local inv = meta:get_inventory()
             local added = nil
             if direction.y == -1 then
@@ -321,7 +321,7 @@ local function register_machine_electrolysis(data)
             return added
         end,
         can_insert = function(pos, node, stack, direction)
-            local meta = minetest.get_meta(pos)
+            local meta = core.get_meta(pos)
             local inv = meta:get_inventory()
             if direction.y == -1 then
                 return inv:room_for_item("src3", stack)
@@ -349,7 +349,7 @@ local function register_machine_electrolysis(data)
     end
 
     local run = function(pos, node)
-        local meta = minetest.get_meta(pos)
+        local meta = core.get_meta(pos)
         local inv = meta:get_inventory()
         local eu_input = meta:get_int(tier .. "_EU_input")
 
@@ -477,7 +477,7 @@ local function register_machine_electrolysis(data)
     end
 
     local node_name = data.modname .. ":" .. ltier .. "_" .. machine_name
-    minetest.register_node(node_name, {
+    core.register_node(node_name, {
         description = machine_desc:format(tier),
         -- up, down, right, left, back, front
         tiles = {ltier .. "_" .. machine_name .. "_top.png" .. mv .. tentry,
@@ -502,8 +502,8 @@ local function register_machine_electrolysis(data)
         end,
         on_rotate = screwdriver.disallow,
         on_construct = function(pos)
-            local node = minetest.get_node(pos)
-            local meta = minetest.get_meta(pos)
+            local node = core.get_node(pos)
+            local meta = core.get_meta(pos)
             meta:set_string("infotext", machine_desc:format(tier))
             meta:set_int("tube_time", 0)
             local inv = meta:get_inventory()
@@ -529,8 +529,8 @@ local function register_machine_electrolysis(data)
                 return
             end
             fs_helpers.on_receive_fields(pos, fields)
-            local node = minetest.get_node(pos)
-            local meta = minetest.get_meta(pos)
+            local node = core.get_node(pos)
+            local meta = core.get_meta(pos)
             local form_buttons = ""
             if not string.find(node.name, ":lv_") and not string.find(node.name, ":mv_") then
                 form_buttons = fs_helpers.cycling_button(meta, pipeworks.button_base, "splitstacks",
@@ -551,11 +551,11 @@ local function register_machine_electrolysis(data)
         mesecons = {
             effector = {
                 action_on = function(pos, node)
-                    local meta = minetest.get_meta(pos)
+                    local meta = core.get_meta(pos)
                     meta:set_int("enabled", 1)
                 end,
                 action_off = function(pos, node)
-                    local meta = minetest.get_meta(pos)
+                    local meta = core.get_meta(pos)
                     meta:set_int("enabled", 0)
                 end
             }
@@ -578,7 +578,7 @@ local function register_machine_electrolysis(data)
         len = 0.6
     end
 
-    minetest.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_active", {
+    core.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_active", {
         description = machine_desc:format(tier),
         tiles = {ltier .. "_" .. machine_name .. "_top_active.png" .. tentry,
                  ltier .. "_" .. machine_name .. "_bottom.png" .. mv,
@@ -611,11 +611,11 @@ local function register_machine_electrolysis(data)
             return technic.machine_after_dig_node
         end,
         on_push_item = function(pos, dir, item)
-            local tube_dir = minetest.get_meta(pos):get_int("tube_dir")
+            local tube_dir = core.get_meta(pos):get_int("tube_dir")
             if dir == tubelib2.Turn180Deg[tube_dir] then
-                local s = minetest.get_meta(pos):get_string("peer_pos")
+                local s = core.get_meta(pos):get_string("peer_pos")
                 if s and s ~= "" then
-                    push_item(minetest.string_to_pos(s))
+                    push_item(core.string_to_pos(s))
                     return true
                 end
             end
@@ -636,8 +636,8 @@ local function register_machine_electrolysis(data)
                 return
             end
             fs_helpers.on_receive_fields(pos, fields)
-            local node = minetest.get_node(pos)
-            local meta = minetest.get_meta(pos)
+            local node = core.get_node(pos)
+            local meta = core.get_meta(pos)
             local form_buttons = ""
             if not string.find(node.name, ":lv_") and not string.find(node.name, ":mv_") then
                 form_buttons = fs_helpers.cycling_button(meta, pipeworks.button_base, "splitstacks",
@@ -658,11 +658,11 @@ local function register_machine_electrolysis(data)
         mesecons = {
             effector = {
                 action_on = function(pos, node)
-                    local meta = minetest.get_meta(pos)
+                    local meta = core.get_meta(pos)
                     meta:set_int("enabled", 1)
                 end,
                 action_off = function(pos, node)
-                    local meta = minetest.get_meta(pos)
+                    local meta = core.get_meta(pos)
                     meta:set_int("enabled", 0)
                 end
             }
@@ -707,14 +707,23 @@ ctg_machines.register_machine_electrolysis({
     tube = 1
 })
 
-minetest.register_craft({
-    output = "ctg_machines:lv_electrolysis 1",
-    recipe = {{"technic:stainless_steel_ingot", "moreores:silver_ingot", "technic:stainless_steel_ingot"},
-              {"default:glass", "technic:machine_casing", "default:mese_crystal"},
-              {"basic_materials:copper_wire", "default:steelblock", "ctg_world:nickel_wire"}}
-})
+if core.get_modpath("ctg_quartz") then
+    core.register_craft({
+        output = "ctg_machines:lv_electrolysis 1",
+        recipe = {{"technic:stainless_steel_ingot", "moreores:silver_ingot", "technic:stainless_steel_ingot"},
+                {"ctg_quartz:crystalline_glass", "technic:machine_casing", "default:mese_crystal"},
+                {"basic_materials:copper_wire", "default:steelblock", "ctg_world:nickel_wire"}}
+    })
+else
+    core.register_craft({
+        output = "ctg_machines:lv_electrolysis 1",
+        recipe = {{"technic:stainless_steel_ingot", "moreores:silver_ingot", "technic:stainless_steel_ingot"},
+                {"default:glass", "technic:machine_casing", "default:mese_crystal"},
+                {"basic_materials:copper_wire", "default:steelblock", "ctg_world:nickel_wire"}}
+    })
+end
 
-minetest.register_craft({
+core.register_craft({
     output = "ctg_machines:mv_electrolysis 1",
     recipe = {{"", "technic:chromium_ingot", ""},
               {"basic_materials:copper_wire", "ctg_machines:lv_electrolysis", "ctg_world:nickel_wire"},

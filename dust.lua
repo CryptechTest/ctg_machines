@@ -1,11 +1,11 @@
-local S = minetest.get_translator("ctg_machines")
+local S = core.get_translator("ctg_machines")
 
 local function register_dust(name, data)
     local lname = string.lower(name)
     lname = string.gsub(lname, ' ', '_')
 
     local dust = "ctg_machines:" .. lname .. "_dust"
-    minetest.register_craftitem(dust, {
+    core.register_craftitem(dust, {
         description = S(name .. " Dust"),
         inventory_image = "ctg_" .. lname .. "_dust.png"
     })
@@ -25,7 +25,7 @@ local function register_dust(name, data)
     end
 
     if data.ingot ~= nil then
-        minetest.register_craft({
+        core.register_craft({
             type = "cooking",
             recipe = dust,
             output = data.ingot

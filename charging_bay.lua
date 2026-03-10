@@ -1,4 +1,4 @@
-local S = minetest.get_translator(minetest.get_current_modname())
+local S = core.get_translator(core.get_current_modname())
 -- local S = technic.getter
 
 local fs_helpers = pipeworks.fs_helpers
@@ -40,7 +40,7 @@ end
 
 local function charge_robot_battery(pos, charge, slot)
 
-    local meta = minetest.get_meta(pos)
+    local meta = core.get_meta(pos)
     if not meta then
         return false, 0
     end
@@ -108,7 +108,7 @@ local function register_machine_charging_bay(data)
     local tier = data.tier
     local ltier = string.lower(tier)
 
-    data.modname = data.modname or minetest.get_current_modname()
+    data.modname = data.modname or core.get_current_modname()
 
     local groups = {
         cracky = 2,
@@ -134,7 +134,7 @@ local function register_machine_charging_bay(data)
     }
 
     local run = function(pos, node)
-        local meta = minetest.get_meta(pos)
+        local meta = core.get_meta(pos)
         local inv = meta:get_inventory()
         local eu_input = meta:get_int(tier .. "_EU_input")
 
@@ -147,7 +147,7 @@ local function register_machine_charging_bay(data)
             y = pos.y - 1,
             z = pos.z
         }
-        local name_down = minetest.get_node(pos_down).name
+        local name_down = core.get_node(pos_down).name
         local cable_in = technic.get_cable_tier(name_down)
 
         if not cable_in then
@@ -197,7 +197,7 @@ local function register_machine_charging_bay(data)
                 z = 0
             })
 
-            local robot = minetest.find_nodes_in_area(pos1, pos2,
+            local robot = core.find_nodes_in_area(pos1, pos2,
                 {"lwcomputers:computer_robot", "lwcomputers:computer_robot_on"})
 
             if #robot > 0 then
@@ -231,7 +231,7 @@ local function register_machine_charging_bay(data)
     end
 
     local node_name = data.modname .. ":" .. ltier .. "_" .. machine_name
-    minetest.register_node(node_name, {
+    core.register_node(node_name, {
         description = machine_desc:format(tier),
         -- up, down, right, left, back, front
         tiles = {machine_name .. "_top.png" .. tr, machine_name .. "_bottom.png" .. tr .. cable_entry,
@@ -249,8 +249,8 @@ local function register_machine_charging_bay(data)
         end,
         on_rotate = screwdriver.disallow,
         on_construct = function(pos)
-            local node = minetest.get_node(pos)
-            local meta = minetest.get_meta(pos)
+            local node = core.get_node(pos)
+            local meta = core.get_meta(pos)
             meta:set_string("infotext", machine_desc:format(tier))
             local inv = meta:get_inventory()
             inv:set_size("upgrade1", 1)
@@ -267,7 +267,7 @@ local function register_machine_charging_bay(data)
         digiline = digiline
     })
 
-    minetest.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_active", {
+    core.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_active", {
         description = machine_desc:format(tier),
         tiles = {{
             image = machine_name .. "_top_active.png" .. tr,
@@ -341,7 +341,7 @@ ctg_machines.register_machine_charger({
 
 local es = "basic_materials:empty_spool"
 
-minetest.register_craft({
+core.register_craft({
     output = "ctg_machines:lv_charging_bay 1",
     recipe = {{"basic_materials:copper_wire", "moreores:silver_ingot", "technic:stainless_steel_ingot"},
               {"basic_materials:copper_wire", "technic:machine_casing", "default:mese_crystal"},
@@ -349,7 +349,7 @@ minetest.register_craft({
     replacements = {{"basic_materials:copper_wire", es .. " 4"}}
 })
 
-minetest.register_craft({
+core.register_craft({
     output = "ctg_machines:mv_charging_bay 1",
     recipe = {{"", "technic:chromium_ingot", ""},
               {"basic_materials:copper_wire", "ctg_machines:lv_charging_bay", "basic_materials:copper_wire"},
@@ -357,7 +357,7 @@ minetest.register_craft({
     replacements = {{"basic_materials:copper_wire", es .. " 2"}}
 })
 
-minetest.register_craft({
+core.register_craft({
     output = "ctg_machines:hv_charging_bay 1",
     recipe = {{"", "technic:chromium_ingot", ""},
               {"basic_materials:copper_wire", "ctg_machines:mv_charging_bay", "basic_materials:copper_wire"},

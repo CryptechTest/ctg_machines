@@ -1,8 +1,8 @@
--- Minetest 0.4 mod: default
+-- core 0.4 mod: default
 -- See README.txt for licensing and other information.
 -- The API documentation in here was moved into game_api.txt
 -- Load support for MT game translation.
-local S = minetest.get_translator("ctg_machines")
+local S = core.get_translator("ctg_machines")
 
 -- Definitions made by this mod that other mods can use too
 ctg_machines = {}
@@ -13,13 +13,13 @@ ctg_machines = {}
 -- This section should be updated before release and older checks can be dropped
 -- when newer ones are introduced.
 if ItemStack("").add_wear_by_uses == nil then
-    error("\nThis version of Minetest Game is incompatible with your engine version " ..
-              "(which is too old). You should download a version of Minetest Game that " ..
+    error("\nThis version of core Game is incompatible with your engine version " ..
+              "(which is too old). You should download a version of core Game that " ..
               "matches the installed engine version.\n")
 end
 
 -- Load files
-local default_path = minetest.get_modpath("ctg_machines")
+local default_path = core.get_modpath("ctg_machines")
 
 dofile(default_path .. "/functions.lua")
 dofile(default_path .. "/digilines.lua")
@@ -36,7 +36,7 @@ function ctg_machines.register_recycle_machine(data)
     -- data.can_insert = true
     data.typename = "compost"
     -- data.machine_name = "electric_machine"
-    data.machine_desc = S("%s Recycle Machine")
+    data.machine_desc = S("%s Recycling Machine")
     ctg_machines.register_base_factory(data)
 end
 

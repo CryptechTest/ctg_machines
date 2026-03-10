@@ -1,4 +1,4 @@
-local has_pipeworks = minetest.get_modpath("pipeworks")
+local has_pipeworks = core.get_modpath("pipeworks")
 local fs_helpers = pipeworks.fs_helpers
 
 local tube_entry_wood = ""
@@ -11,12 +11,12 @@ if has_pipeworks then
     tube_entry_metal = "^pipeworks_tube_connection_metallic.png"
 end
 
-local S = minetest.get_translator("ctg_machines")
+local S = core.get_translator("ctg_machines")
 
 local connect_default = {"bottom", "back", "left", "right"}
 
-local c_vacuum = minetest.get_content_id("vacuum:vacuum")
-local c_air = minetest.get_content_id("air")
+local c_vacuum = core.get_content_id("vacuum:vacuum")
+local c_air = core.get_content_id("air")
 
 local function round(v)
     return math.floor(v + 0.5)
@@ -33,9 +33,9 @@ local function update_machine_formspec(data, meta, size, percent)
     local enabled = meta:get_int("enabled") > 0
     local eu_input = meta:get_int(tier .. "_EU_input")
     local eu_demand = meta:get_int(tier .. "_EU_demand")
-    local power_field = "label[0.3,0.8;" .. minetest.colorize('#21daff', "Energy Stats") .. "]"
-    local input_field = "label[0.3,1.2;Input]label[0.3,1.55;" .. minetest.colorize('#03fc56', "+" .. eu_input) .. "]"
-    local demand_field = "label[0.3,1.9;Demand]label[0.3,2.25;" .. minetest.colorize('#fca903', "-" .. eu_demand) .. "]"
+    local power_field = "label[0.3,0.8;" .. core.colorize('#21daff', "Energy Stats") .. "]"
+    local input_field = "label[0.3,1.2;Input]label[0.3,1.55;" .. core.colorize('#03fc56', "+" .. eu_input) .. "]"
+    local demand_field = "label[0.3,1.9;Demand]label[0.3,2.25;" .. core.colorize('#fca903', "-" .. eu_demand) .. "]"
     local power_fields = power_field .. input_field .. demand_field
     if (typename == 'compost') then
         local image = ltier .. "_recycler_front.png"
@@ -101,7 +101,7 @@ function ctg_machines.register_base_factory(data)
     local tier = data.tier
     local ltier = string.lower(tier)
 
-    data.modname = data.modname or minetest.get_current_modname()
+    data.modname = data.modname or core.get_current_modname()
 
     local groups = {
         cracky = 2,
@@ -123,13 +123,13 @@ function ctg_machines.register_base_factory(data)
     local tube = {
         input_inventory = 'dst',
         insert_object = function(pos, node, stack, direction)
-            local meta = minetest.get_meta(pos)
+            local meta = core.get_meta(pos)
             local inv = meta:get_inventory()
             local added = inv:add_item("src", stack)
             return added
         end,
         can_insert = function(pos, node, stack, direction)
-            local meta = minetest.get_meta(pos)
+            local meta = core.get_meta(pos)
             local inv = meta:get_inventory()
             return inv:room_for_item("src", stack)
         end,
@@ -159,7 +159,7 @@ function ctg_machines.register_base_factory(data)
     end
 
     local run = function(pos, node)
-        local meta = minetest.get_meta(pos)
+        local meta = core.get_meta(pos)
         local inv = meta:get_inventory()
         local eu_input = meta:get_int(tier .. "_EU_input")
 
@@ -265,7 +265,7 @@ function ctg_machines.register_base_factory(data)
                 if meta:get_int("src_time") < meta:get_int("result_time")and math.random(0, 10) > 0 then
                     return
                 end
-                local node_above = minetest.get_node({
+                local node_above = core.get_node({
                     x = pos.x,
                     y = pos.y + 1,
                     z = pos.z
@@ -279,12 +279,12 @@ function ctg_machines.register_base_factory(data)
                 local pos1 = vector.subtract(pos, range)
                 local pos2 = vector.add(pos, range)
                 local nodes =
-                    minetest.find_nodes_in_area(pos1, pos2, {"air", "vacuum:atmos_thick", "vacuum:atmos_thin"})
+                    core.find_nodes_in_area(pos1, pos2, {"air", "vacuum:atmos_thick", "vacuum:atmos_thin"})
                 if #nodes > 0 then
                     if math.random(0, 32) == 0 then
                         ctg_machines.play_hiss(pos)
                     end
-                    if pos.y > 1000 and minetest.get_modpath("ctg_airs") then
+                    if pos.y > 1000 and core.get_modpath("ctg_airs") then
                         if ctg_machines.process_air({
                             x = pos.x,
                             y = pos.y + 1,
@@ -325,10 +325,10 @@ function ctg_machines.register_base_factory(data)
                 }
                 local pos1 = vector.subtract(pos, range)
                 local pos2 = vector.add(pos, range)
-                local nodes = minetest.find_nodes_in_area(pos1, pos2, {"air", "vacuum:atmos_thick"})
+                local nodes = core.find_nodes_in_area(pos1, pos2, {"air", "vacuum:atmos_thick"})
                 if #nodes > 3 then
                     local i = 1
-                    local node_above = minetest.get_node({
+                    local node_above = core.get_node({
                         x = pos.x,
                         y = pos.y + i,
                         z = pos.z
@@ -345,7 +345,7 @@ function ctg_machines.register_base_factory(data)
                             meta:set_int(tier .. "_EU_demand", 0)
                             return
                         end
-                        if minetest.get_item_group(node_above.name, "cracky") ~= 0 then
+                        if core.get_item_group(node_above.name, "cracky") ~= 0 then
                             technic.swap_node(pos, machine_node)
                             meta:set_string("infotext", machine_desc_tier .. S(" Port Blocked"))
                             meta:set_int(tier .. "_EU_demand", 0)
@@ -353,7 +353,7 @@ function ctg_machines.register_base_factory(data)
                         end
                     end
                     if pos.y > 1000 then
-                        if minetest.get_modpath("ctg_airs") then
+                        if core.get_modpath("ctg_airs") then
                             if ctg_machines.process_air(pos, math.random(1, 2)) <= 1 then
                                 technic.swap_node(pos, machine_node)
                                 meta:set_string("infotext", machine_desc_tier .. S(" No Air"))
@@ -412,7 +412,7 @@ function ctg_machines.register_base_factory(data)
     end
 
     local node_name = data.modname .. ":" .. ltier .. "_" .. machine_name
-    minetest.register_node(node_name, {
+    core.register_node(node_name, {
         description = machine_desc:format(tier),
         tiles = {ltier .. "_" .. machine_name .. "_top.png", ltier .. "_" .. machine_name .. "_bottom.png", -- .. tube_entry_metal,
                  ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_stone,
@@ -426,8 +426,8 @@ function ctg_machines.register_base_factory(data)
         legacy_facedir_simple = true,
         sounds = default.node_sound_wood_defaults(),
         on_construct = function(pos)
-            local node = minetest.get_node(pos)
-            local meta = minetest.get_meta(pos)
+            local node = core.get_node(pos)
+            local meta = core.get_meta(pos)
 
             local form_buttons = ""
             if not string.find(node.name, ":lv_") and not string.find(node.name, ":mv_") then
@@ -460,8 +460,8 @@ function ctg_machines.register_base_factory(data)
                 return
             end
             fs_helpers.on_receive_fields(pos, fields)
-            local node = minetest.get_node(pos)
-            local meta = minetest.get_meta(pos)
+            local node = core.get_node(pos)
+            local meta = core.get_meta(pos)
             local form_buttons = ""
             if not string.find(node.name, ":lv_") and not string.find(node.name, ":mv_") then
                 form_buttons = fs_helpers.cycling_button(meta, pipeworks.button_base, "splitstacks",
@@ -473,11 +473,11 @@ function ctg_machines.register_base_factory(data)
         mesecons = {
             effector = {
                 action_on = function(pos, node)
-                    local meta = minetest.get_meta(pos)
+                    local meta = core.get_meta(pos)
                     meta:set_int("enabled", 1)
                 end,
                 action_off = function(pos, node)
-                    local meta = minetest.get_meta(pos)
+                    local meta = core.get_meta(pos)
                     meta:set_int("enabled", 0)
                 end
             }
@@ -493,7 +493,7 @@ function ctg_machines.register_base_factory(data)
         }
     })
 
-    minetest.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_active", {
+    core.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_active", {
         description = machine_desc:format(tier),
         tiles = {ltier .. "_" .. machine_name .. "_top.png", ltier .. "_" .. machine_name .. "_bottom.png",
                  ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_stone,
@@ -544,8 +544,8 @@ function ctg_machines.register_base_factory(data)
                 return
             end
             fs_helpers.on_receive_fields(pos, fields)
-            local node = minetest.get_node(pos)
-            local meta = minetest.get_meta(pos)
+            local node = core.get_node(pos)
+            local meta = core.get_meta(pos)
             local form_buttons = ""
             if not string.find(node.name, ":lv_") and not string.find(node.name, ":mv_") then
                 form_buttons = fs_helpers.cycling_button(meta, pipeworks.button_base, "splitstacks",
@@ -557,11 +557,11 @@ function ctg_machines.register_base_factory(data)
         mesecons = {
             effector = {
                 action_on = function(pos, node)
-                    local meta = minetest.get_meta(pos)
+                    local meta = core.get_meta(pos)
                     meta:set_int("enabled", 1)
                 end,
                 action_off = function(pos, node)
-                    local meta = minetest.get_meta(pos)
+                    local meta = core.get_meta(pos)
                     meta:set_int("enabled", 0)
                 end
             }
@@ -577,7 +577,7 @@ function ctg_machines.register_base_factory(data)
         }
     })
 
-    minetest.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_wait", {
+    core.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_wait", {
         description = machine_desc:format(tier),
         tiles = {ltier .. "_" .. machine_name .. "_top.png", ltier .. "_" .. machine_name .. "_bottom.png",
                  ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_stone,
@@ -620,8 +620,8 @@ function ctg_machines.register_base_factory(data)
                 return
             end
             fs_helpers.on_receive_fields(pos, fields)
-            local node = minetest.get_node(pos)
-            local meta = minetest.get_meta(pos)
+            local node = core.get_node(pos)
+            local meta = core.get_meta(pos)
             local form_buttons = ""
             if not string.find(node.name, ":lv_") and not string.find(node.name, ":mv_") then
                 form_buttons = fs_helpers.cycling_button(meta, pipeworks.button_base, "splitstacks",
@@ -633,11 +633,11 @@ function ctg_machines.register_base_factory(data)
         mesecons = {
             effector = {
                 action_on = function(pos, node)
-                    local meta = minetest.get_meta(pos)
+                    local meta = core.get_meta(pos)
                     meta:set_int("enabled", 1)
                 end,
                 action_off = function(pos, node)
-                    local meta = minetest.get_meta(pos)
+                    local meta = core.get_meta(pos)
                     meta:set_int("enabled", 0)
                 end
             }

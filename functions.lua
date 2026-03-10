@@ -1,4 +1,4 @@
-local S = minetest.get_translator("ctg_machines")
+local S = core.get_translator("ctg_machines")
 
 function ctg_machines.get_recycled(typename, items, take)
     local new_input = {}
@@ -16,7 +16,7 @@ function ctg_machines.get_recycled(typename, items, take)
                     new_input[i]:take_item(1)
                 end
                 run_length = 4
-            elseif minetest.get_item_group(stack:get_name(), 'compost') ~= 0 then
+            elseif core.get_item_group(stack:get_name(), 'compost') ~= 0 then
                 new_input[i] = ItemStack(stack)
                 if take then
                     new_input[i]:take_item(1)
@@ -29,7 +29,7 @@ function ctg_machines.get_recycled(typename, items, take)
                     })
                     run_length = 8;
                 end
-            elseif minetest.get_item_group(stack:get_name(), 'flammable') ~= 0 then
+            elseif core.get_item_group(stack:get_name(), 'flammable') ~= 0 then
                 new_input[i] = ItemStack(stack)
                 if take then
                     new_input[i]:take_item(1)
@@ -118,12 +118,12 @@ function ctg_machines.get_recycled(typename, items, take)
                     })
                 end
                 run_length = 10;
-            elseif minetest.get_item_group(stack:get_name(), 'corestone') ~= 0 then
+            elseif core.get_item_group(stack:get_name(), 'corestone') ~= 0 then
                 new_input[i] = ItemStack(stack)
                 if take then
                     new_input[i]:take_item(1)
                 end
-                local g = minetest.get_item_group(stack:get_name(), 'corestone')
+                local g = core.get_item_group(stack:get_name(), 'corestone')
                 if g == 1 or g == 2 or g == 5 then -- stone & cobble
                     local r = math.random(1, 100);
                     if (r > 96) then
@@ -548,26 +548,26 @@ function ctg_machines.get_recycled(typename, items, take)
 end
 
 local function is_vacuum_node(pos)
-    local node = minetest.get_node(pos)
-    if minetest.get_item_group(node.name, "vacuum") == 1 or minetest.get_item_group(node.name, "atmosphere") == 1 then
+    local node = core.get_node(pos)
+    if core.get_item_group(node.name, "vacuum") == 1 or core.get_item_group(node.name, "atmosphere") == 1 then
         return true
     end
     return false
 end
 
 local function is_thin_atmos_node(pos)
-    local node = minetest.get_node(pos)
-    if minetest.get_item_group(node.name, "vacuum") == 1 or minetest.get_item_group(node.name, "atmosphere") == 1 or
-        minetest.get_item_group(node.name, "atmosphere") == 3 then
+    local node = core.get_node(pos)
+    if core.get_item_group(node.name, "vacuum") == 1 or core.get_item_group(node.name, "atmosphere") == 1 or
+        core.get_item_group(node.name, "atmosphere") == 3 then
         return true
     end
     return false
 end
 
 local function is_atmos_node(pos)
-    local node = minetest.get_node(pos)
-    if node.name == 'air' or minetest.get_item_group(node.name, "atmosphere") > 0 or
-        minetest.get_item_group(node.name, "vacuum") == 1 then
+    local node = core.get_node(pos)
+    if node.name == 'air' or core.get_item_group(node.name, "atmosphere") > 0 or
+        core.get_item_group(node.name, "vacuum") == 1 then
         return true
     end
     return false
@@ -685,30 +685,30 @@ end
 local fill_atmos_near = function(pos, r)
     local traversed = {}
     local nodes = traverse_atmos(traversed, pos, nil, r, 0);
-    -- minetest.log("found " .. #nodes);
+    -- core.log("found " .. #nodes);
     local count = 0;
     for i, node_pos in pairs(nodes) do
         if (count > 300) then -- 125=5x5
             break
         end
-        local node = minetest.get_node(node_pos)
+        local node = core.get_node(node_pos)
         local chng = false;
         local thick = false;
-        if (minetest.get_item_group(node.name, "atmosphere") == 2) or node.name == "air" then
+        if (core.get_item_group(node.name, "atmosphere") == 2) or node.name == "air" then
             chng = true;
             thick = node.name == "air";
-        elseif (minetest.get_item_group(node.name, "atmosphere") == 1) or
-            (minetest.get_item_group(node.name, "atmosphere") == 3) then
+        elseif (core.get_item_group(node.name, "atmosphere") == 1) or
+            (core.get_item_group(node.name, "atmosphere") == 3) then
             chng = true;
         end
         if chng then
             count = count + 1;
             if thick then
-                minetest.set_node(node_pos, {
+                core.set_node(node_pos, {
                     name = "vacuum:atmos_thin"
                 })
             else
-                minetest.set_node(node_pos, {
+                core.set_node(node_pos, {
                     name = "vacuum:vacuum"
                 })
             end
@@ -729,11 +729,11 @@ function ctg_machines.process_air(pos, size)
 end
 
 function ctg_machines.play_hiss(pos)
-    minetest.sound_play("vacuum_hiss", {
+    core.sound_play("vacuum_hiss", {
         pos = pos,
         gain = 0.5
     })
-    minetest.add_particlespawner({
+    core.add_particlespawner({
         amount = 10,
         time = 3,
         minpos = vector.subtract(pos, 0.95),

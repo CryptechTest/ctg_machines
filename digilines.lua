@@ -12,12 +12,12 @@ ctg_machines.machine_digiline_effector = function(pos, _, channel, msg)
     end
 
     if msg.command == "enable" then
-        local meta = minetest.get_meta(pos)
+        local meta = core.get_meta(pos)
         meta:set_int("enabled", 1)
     end
 
     if msg.command == "disable" then
-        local meta = minetest.get_meta(pos)
+        local meta = core.get_meta(pos)
         meta:set_int("enabled", 0)
     end
 
@@ -37,12 +37,12 @@ ctg_machines.electrolysis_digiline_effector = function(pos, _, channel, msg)
     end
 
     if msg.command == "enable" then
-        local meta = minetest.get_meta(pos)
+        local meta = core.get_meta(pos)
         meta:set_int("enabled", 1)
     end
 
     if msg.command == "disable" then
-        local meta = minetest.get_meta(pos)
+        local meta = core.get_meta(pos)
         meta:set_int("enabled", 0)
     end
 
