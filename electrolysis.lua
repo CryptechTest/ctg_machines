@@ -22,6 +22,16 @@ local function round(v)
     return math.floor(v + 0.5)
 end
 
+local function push_item(pos, inv, param2)
+	local taken = minecart.inv_take_items(inv, "main", 1)
+	if taken then
+		local leftover = minecart.put_items(pos, param2, taken)
+		if leftover then
+			inv:add_item("main", leftover)
+		end
+	end
+end
+
 function ctg_machines.update_formspec2(data, running, enabled, has_water)
     return ctg_machines.update_formspec(data, running, enabled, has_water, 0)
 end
