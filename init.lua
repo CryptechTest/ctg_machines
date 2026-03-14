@@ -27,6 +27,8 @@ dofile(default_path .. "/machine.lua")
 dofile(default_path .. "/hydrogen.lua")
 dofile(default_path .. "/electrolysis.lua")
 dofile(default_path .. "/dust.lua")
+dofile(default_path .. "/coolants.lua")
+dofile(default_path .. "/chem_lab.lua")
 dofile(default_path .. "/recipes.lua")
 
 function ctg_machines.register_recycle_machine(data)
