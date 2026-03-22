@@ -270,7 +270,7 @@ local function register_machine_charging_bay(data)
     core.register_node(data.modname .. ":" .. ltier .. "_" .. machine_name .. "_active", {
         description = machine_desc:format(tier),
         tiles = {{
-            image = machine_name .. "_top_active.png" .. tr,
+            name = machine_name .. "_top_active.png" .. tr,
             backface_culling = false,
             animation = {
                 type = "vertical_frames",
