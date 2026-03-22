@@ -499,7 +499,7 @@ function ctg_machines.register_base_factory(data)
                  ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_stone,
                  ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_stone,
                  ltier .. "_" .. machine_name .. "_side.png" .. tube_entry_stone, {
-            image = ltier .. "_" .. machine_name .. "_front_active.png",
+            name = ltier .. "_" .. machine_name .. "_front_active.png",
             backface_culling = false,
             animation = {
                 type = "vertical_frames",

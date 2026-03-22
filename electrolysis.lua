@@ -595,7 +595,7 @@ local function register_machine_electrolysis(data)
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry,
                  ltier .. "_" .. machine_name .. "_side.png" .. mv .. tentry, {
-            image = ltier .. "_" .. machine_name .. "_front_active.png" .. mv,
+            name = ltier .. "_" .. machine_name .. "_front_active.png" .. mv,
             backface_culling = false,
             animation = {
                 type = "vertical_frames",
