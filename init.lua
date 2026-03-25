@@ -30,6 +30,9 @@ dofile(default_path .. "/dust.lua")
 dofile(default_path .. "/coolants.lua")
 dofile(default_path .. "/chem_lab.lua")
 dofile(default_path .. "/recipes.lua")
+dofile(default_path .. "/harvester/gantry.lua")
+dofile(default_path .. "/harvester/crafting.lua")
+dofile(default_path .. "/harvester/digilines.lua")
 
 function ctg_machines.register_recycle_machine(data)
     data.tube = 1
