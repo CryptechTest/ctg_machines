@@ -489,6 +489,7 @@ core.register_node("ctg_machines:gantry_post", {
     groups = {
         cracky = 2,
         gantry_post = 1,
+        gantry_pole = 2,
         gantry_frame = 1,
     }
 })
@@ -516,9 +517,9 @@ core.register_node("ctg_machines:gantry_tube", {
         gantry_frame = 1,
         not_in_creative_inventory = 1
     },
-    connect_sides = {"front", "left", "back", "right", "top", "bottom"},
+    --connect_sides = {"front", "left", "back", "right", "top", "bottom"},
     connects_to = {
-        "group:gantry_tube", "group:gantry_post", "group:gantry_pole", "group:gantry_base"
+        "group:gantry_tube", "group:gantry_pole", "group:gantry_base"
     },
     is_ground_content = false,
     sunlight_propagates = true,
@@ -547,22 +548,24 @@ core.register_node("ctg_machines:gantry_tube_vertical", {
         gantry_frame = 1,
         not_in_creative_inventory = 1
     },
-    connect_sides = {"front", "left", "back", "right", "top", "bottom"},
+    --connect_sides = {"front", "left", "back", "right", "top", "bottom"},
     connects_to = {
-        "group:gantry_tube", "group:gantry_post", "group:gantry_pole", "group:gantry_base"
+        "group:gantry_tube", "group:gantry_pole", "group:gantry_base"
     },
+    paramtype = "light",
     is_ground_content = false,
     sunlight_propagates = true,
     drawtype = "nodebox",
     node_box = {
 		type = "connected",
-		fixed = {-0.25, -0.25, -0.25, 0.25, 0.5, 0.25}, -- base
+		fixed = {{-0.25, -0.25, -0.25, 0.25, 0.5, 0.25}, -- base
+        {-0.25, -0.5, -0.25, 0.25, -0.25, 0.25}},
         connect_back =	{-0.25, -0.25, 0.25, 0.25, 0.25, 0.5}, -- NodeBox12
         connect_front ={-0.25, -0.25, -0.5, 0.25, 0.25, -0.25}, -- NodeBox13
         connect_right ={0.25, -0.25, -0.25, 0.5, 0.25, 0.25}, -- NodeBox14
         connect_left ={-0.5, -0.25, -0.25, -0.25, 0.25, 0.25}, -- NodeBox15
         --connect_top ={-0.25, 0.25, -0.25, 0.25, 0.5, 0.25}, -- NodeBox16
-        connect_bottom ={-0.25, -0.5, -0.25, 0.25, -0.25, 0.25}, -- NodeBox17
+        --connect_bottom ={-0.25, -0.5, -0.25, 0.25, -0.25, 0.25}, -- NodeBox17
     }
 })
 
@@ -577,7 +580,7 @@ core.register_node("ctg_machines:gantry_tube_joint", {
         gantry_frame = 1,
         not_in_creative_inventory = 1
     },
-    connect_sides = {"front", "left", "back", "right", "top", "bottom"},
+    --connect_sides = {"front", "left", "back", "right", "top", "bottom"},
     connects_to = {
         "group:gantry_tube", "group:gantry_post", "group:gantry_pole", "group:gantry_base"
     },
@@ -608,19 +611,21 @@ core.register_node("ctg_machines:gantry_tube_arm", {
         not_in_creative_inventory = 1
     },
     connect_sides = {"top", "bottom"},
-    connects_to = {"group:gantry_tube", "group:gantry_pole"},
+    connects_to = {"group:gantry_tube"},
     is_ground_content = false,
     sunlight_propagates = true,
     drawtype = "nodebox",
     node_box = {
-		type = "connected",
-		fixed = {-0.25, -0.25, -0.25, 0.25, 0.25, 0.25}, -- base
+		type = "fixed",
+		fixed = {{-0.25, -0.25, -0.25, 0.25, 0.25, 0.25}, -- base
+        {-0.25, 0.25, -0.25, 0.25, 0.5, 0.25},
+        {-0.25, -0.5, -0.25, 0.25, -0.25, 0.25}},
         --connect_back =	{-0.25, -0.25, 0.25, 0.25, 0.25, 0.5}, -- NodeBox12
         --connect_front ={-0.25, -0.25, -0.5, 0.25, 0.25, -0.25}, -- NodeBox13
         --connect_right ={0.25, -0.25, -0.25, 0.5, 0.25, 0.25}, -- NodeBox14
         --connect_left ={-0.5, -0.25, -0.25, -0.25, 0.25, 0.25}, -- NodeBox15
-        connect_top ={-0.25, 0.25, -0.25, 0.25, 0.5, 0.25}, -- NodeBox16
-        connect_bottom ={-0.25, -0.5, -0.25, 0.25, -0.25, 0.25}, -- NodeBox17
+        --connect_top ={-0.25, 0.25, -0.25, 0.25, 0.5, 0.25}, -- NodeBox16
+        --connect_bottom ={-0.25, -0.5, -0.25, 0.25, -0.25, 0.25}, -- NodeBox17
     }
 })
 
@@ -639,20 +644,17 @@ core.register_node("ctg_machines:gantry_tube_head", {
         gantry_frame = 1,
         not_in_creative_inventory = 1
     },
-    connect_sides = {"top", "bottom"},
-    connects_to = {"group:gantry_tube", "group:gantry_pole"},
+    connect_sides = {"top"},
+    connects_to = {"group:gantry_tube"},
     is_ground_content = false,
     sunlight_propagates = true,
     drawtype = "nodebox",
     node_box = {
-		type = "connected",
-		fixed = {-0.35, -0.4235, -0.35, 0.35, 0.25, 0.35}, -- base
-        --connect_back =	{-0.25, -0.25, 0.25, 0.25, 0.25, 0.5}, -- NodeBox12
-        --connect_front ={-0.25, -0.25, -0.5, 0.25, 0.25, -0.25}, -- NodeBox13
-        --connect_right ={0.25, -0.25, -0.25, 0.5, 0.25, 0.25}, -- NodeBox14
-        --connect_left ={-0.5, -0.25, -0.25, -0.25, 0.25, 0.25}, -- NodeBox15
-        connect_top ={-0.25, 0.25, -0.25, 0.25, 0.5, 0.25}, -- NodeBox16
-        connect_bottom ={-0.25, -0.5, -0.25, 0.25, -0.25, 0.25}, -- NodeBox17
+		type = "fixed",
+		fixed = {
+            {-0.35, -0.4235, -0.35, 0.35, 0.25, 0.35}, -- base 
+            {-0.25, 0.25, -0.25, 0.25, 0.5, 0.25} -- top
+        } 
     }
 })
 
@@ -1620,9 +1622,37 @@ local function register_gantry(data)
 
         if seed == nil or seed == "" then return false end
 
-        local player = core.get_player_by_name(meta:get_string("owner"))
+        --local player = core.get_player_by_name(meta:get_string("owner"))
 
-        core.place_node(pos, {name = seed, param1 = 0, param2 = 0}, player)
+        local function place_seed(p, s)
+            local under = core.get_node(vector.subtract(p, {x = 0, y = 1, z = 0}))
+            local above = core.get_node(p)
+            -- return if any of the nodes is not registered
+            if not core.registered_nodes[under.name] then
+                return false
+            end
+            if not core.registered_nodes[above.name] then
+                return false
+            end
+
+            -- check if you can replace the node above the pointed node
+            if not core.registered_nodes[above.name].buildable_to then
+                return false
+            end
+
+            -- check if pointing at soil
+            if core.get_item_group(under.name, 'soil') < 2 then
+                return false
+            end
+
+            -- set node to seed
+            core.set_node(pos, {name = s, param2 = 1})
+            x_farming.tick(pos)
+
+            return true
+        end
+
+        place_seed(pos, seed)
         play_machine_sound_plant(pos)
 
         for _, item in pairs(list) do
