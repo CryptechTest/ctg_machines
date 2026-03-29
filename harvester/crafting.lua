@@ -15,3 +15,9 @@ core.register_craft({
         {"ship_parts:aluminum_support", "technic:quarry", "ship_parts:aluminum_support"},
     }
 })
+
+core.register_privilege("gantry_admin", {
+    description = "Allow admin to break gantry nodes",
+	give_to_singleplayer = false,
+	give_to_admin = false,
+})
