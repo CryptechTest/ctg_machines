@@ -2367,7 +2367,7 @@ local function register_gantry(data)
             w = 1
         }
         if meta and def.protector.can_dig(s, pos, name, true, 1) then]]
-        if meta and core.is_protected(pos, name) then
+        if meta and not core.is_protected(pos, name) then
             player_pos[name] = pos
             core.show_formspec(name, modname .. ":node", def.protector_formspec(pos, meta))
         end
