@@ -1015,6 +1015,9 @@ local function build_gantry(origin, clear)
     local p2 = core.deserialize(meta:get_string("post2"))
     local p3 = core.deserialize(meta:get_string("post3"))
     local p4 = core.deserialize(meta:get_string("post4"))
+    if not p1 or not p2 or not p3 or not p4 then 
+        return
+    end
     local function build_post(pos)
         for y = 0, 4, 1 do
             local p = vector.add(pos, {x = 0, y = y, z = 0})
