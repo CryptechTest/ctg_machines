@@ -1009,6 +1009,9 @@ end
 
 local function build_gantry(origin, clear)
     local meta = core.get_meta(origin)
+    if not meta:get_string("area") then
+        return
+    end
     local area = core.deserialize(meta:get_string("area"))
     if area == nil then return end
     local p1 = core.deserialize(meta:get_string("post1"))
@@ -1958,11 +1961,11 @@ local function register_gantry(data)
             
         end,
         after_dig_node = function(pos,oldnode, oldmetadata, player)
+            draw_gantry(oldnode, true, true)
+            build_gantry(oldnode, true)
             technic.machine_after_dig_node(pos,oldnode, oldmetadata, player)
         end,
         on_destruct = function(pos)
-            draw_gantry(pos, true, true)
-            build_gantry(pos, true)
         end,
         on_receive_fields = function(pos, formname, fields, sender)
             if fields.quit then
