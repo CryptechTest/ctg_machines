@@ -2152,6 +2152,11 @@ local function register_gantry(data)
         }) then
             return true
         end
+        if infolevel == 1 and core.check_player_privs(digger, {
+            gantry_admin = true
+        }) then
+            return true
+        end
 
         -- infolevel 3 is only used to bypass priv check, change to 1 now
         if infolevel == 3 then
@@ -2334,12 +2339,16 @@ local function register_gantry(data)
     function def.rightclick(pos, node, clicker, itemstack)
         local meta = core.get_meta(pos)
         local name = clicker:get_player_name()
-        local s = {
+        if not name then
+            return
+        end
+        --[[local s = {
             l = 1,
             h = 1,
             w = 1
         }
-        if meta and def.protector.can_dig(s, pos, name, true, 1) then
+        if meta and def.protector.can_dig(s, pos, name, true, 1) then]]
+        if meta and core.is_protected(pos, name) then
             player_pos[name] = pos
             core.show_formspec(name, modname .. ":node", def.protector_formspec(pos, meta))
         end
