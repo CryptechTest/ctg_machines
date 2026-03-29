@@ -1084,13 +1084,13 @@ local function build_gantry(origin, clear)
         local pA = vector.add(origin, {x = 0, y = y, z = 0})
         local pB = vector.add(origin, {x = 0, y = y, z = 0})
         local extSupport = false
-        if math.abs(vdir.x) == 1 then
+        --[[if math.abs(vdir.x) == 1 then
             pB.x = p3.x
             extSupport = area.maxZ - area.minZ > 16
         elseif math.abs(vdir.z) == 1 then
             pB.z = p3.z
             extSupport = area.maxX - area.minX > 16
-        end
+        end]]
         if y == 3 then
             if not clear then
                 core.set_node(pA, {name = "ctg_machines:gantry_tube_arm"})
