@@ -517,7 +517,7 @@ core.register_node("ctg_machines:gantry_tube", {
         gantry_frame = 1,
         not_in_creative_inventory = 1
     },
-    --connect_sides = {"front", "left", "back", "right", "top", "bottom"},
+    connect_sides = {"front", "left", "back", "right", "top", "bottom"},
     connects_to = {
         "group:gantry_tube", "group:gantry_pole", "group:gantry_base"
     },
@@ -985,10 +985,10 @@ local function locate_area(origin, placer)
     --local posts, vdir = find_area(origin)
     local posts = find_posts(origin, placer)
     if posts == nil then
-        return
+        return false
     end
     if #posts ~= 4 then
-        return
+        return false
     end
 
     local p1, p2, p3, p4 = posts[1], posts[2], posts[3], posts[4]
@@ -1004,6 +1004,7 @@ local function locate_area(origin, placer)
     --meta:set_string("gantry_vec", core.serialize(vdir))
     local area_size = math.floor(area.maxX - area.minX) * (area.maxZ - area.minZ)
     meta:set_int("size", area_size)
+    return true
 end
 
 local function build_gantry(origin, clear)
@@ -1723,7 +1724,7 @@ local function register_gantry(data)
         end
     end
 
-    local function do_move_vec(pos, dir)
+    local function do_move_vec(pos, dir, stp)
         local meta = core.get_meta(pos)
         local mode = meta:get_int("gantry_mode")
         if mode == 0 then
@@ -1732,7 +1733,7 @@ local function register_gantry(data)
         if meta:get_int("HV_EU_input") < 1000 then
             return
         end
-        local step = meta:get_int("gantry_step")
+        local step = stp and stp or meta:get_int("gantry_step")
         if step < 1 then
             step = 1
         end
@@ -1819,7 +1820,7 @@ local function register_gantry(data)
             tick_run = tick_run - 1
             if tick_run <= 0 then
                 meta:set_int("processing", 1)
-                local interval = tonumber(meta:get_string("run_interval")) or 0.5
+                local interval = tonumber(meta:get_string("run_interval")) or 5
                 tick_run = interval * 60
             end
             meta:set_int("tick_run", tick_run)
@@ -1866,7 +1867,7 @@ local function register_gantry(data)
             meta:set_string("infotext", "Gantry Disabled")
         end
 
-        if harvest_count(meta) > 7 then
+        if harvest_count(meta) > 8 then
             meta:set_int("purge_on", 1)
         end
 
@@ -1877,10 +1878,11 @@ local function register_gantry(data)
     end
 
     local after_place_node = function(pos, placer, itemstack, pointed_thing)
-        locate_area(pos, placer)
-        build_gantry(pos, false)
-        move_gantry_auto(pos)
-        draw_gantry(pos, false)
+        if locate_area(pos, placer) then
+            build_gantry(pos, false)
+            move_gantry_auto(pos)
+            draw_gantry(pos, false)
+        end
         --core.get_node_timer(pos):start(3)
         return data.tube and pipeworks.after_place(pos) or nil
     end
@@ -2087,7 +2089,7 @@ local function register_gantry(data)
             local enb_btn = enabled and "Disable?" or "Enable?"
             local enb_btn_color = enabled and "#00FF00" or "#FF0000"
             local enb_btn_txt = core.colorize(enb_btn_color, enb_btn)
-            local interval = meta:get_string("run_interval") ~= "" and meta:get_string("run_interval") or 0.5
+            local interval = meta:get_string("run_interval") ~= "" and meta:get_string("run_interval") or 5
             local channel = meta:get_string("digilines_channel") ~= "" and  meta:get_string("digilines_channel") or "gantry"
             formspec = formspec .. "label[0,1.0;" .. (S("Input/Output Cache")) .. "]"
                 formspec = formspec ..
@@ -2098,7 +2100,7 @@ local function register_gantry(data)
                 formspec = formspec .. "button[0,-0.2;2,1;toggle_enable;"..enb_btn_txt.."]"
                 formspec = formspec .. "checkbox[3,0.8;purge_toggle;Purge;"..tostring(meta:get_int("purge_on") == 1).."]"
                 formspec = formspec .. "checkbox[4.25,0.8;purge_all;Purge All;"..tostring(meta:get_int("purge_all") == 1).."]"
-                formspec = formspec .. "field[6.25,1.6;2,1;run_interval;Idle Time:;"..interval.."]"
+                formspec = formspec .. "field[6.25,1.6;2,1;run_interval;Idle Time (mins):;"..interval.."]"
                 formspec = formspec .. "field[6.25,2.6;2,1;digi_channel;Digiline Channel:;"..channel.."]"
         elseif menu_level == 4 then
             formspec = formspec .. "checkbox[1,1.8;gantry_mode;Manual Control Enabled;"..tostring(meta:get_int("gantry_mode") == 1).."]"
@@ -2109,6 +2111,8 @@ local function register_gantry(data)
             --formspec = formspec .. "button[2,4;1,1;move_stop;||]"
             formspec = formspec .. "field[6,4;2,1;step_amount;Step Amount:;"..tostring(meta:get_int("gantry_step") ).."]"
             formspec = formspec .. "button[5.75,4.75;2,1;save_control;Save Setup]"
+            formspec = formspec .. "button[5.75,2.0;2,1;gantry_start;Start]"
+            formspec = formspec .. "button[5.75,1.25;2,1;gantry_home;Home]"
             
         end
 
@@ -2580,7 +2584,7 @@ local function register_gantry(data)
         end
 
         if fields.run_interval then
-            local run_interval = '0.5'
+            local run_interval = '5'
             if tonumber(fields.run_interval) then
                 run_interval = fields.run_interval
             end
@@ -2599,7 +2603,6 @@ local function register_gantry(data)
         if fields.digi_channel then
             meta:set_string("digilines_channel", fields.digi_channel) 
         end
-
 
         if fields.gantry_mode then
             if meta:get_int("gantry_mode") == 1 then
@@ -2680,6 +2683,16 @@ local function register_gantry(data)
         if fields.move_right then
             local dir = calc_move("r")
             do_move_vec(pos, dir)
+        end
+
+        if fields.gantry_home then
+            if meta:get_int("gantry_mode") == 1 then
+                local dir1 = calc_move("b")
+                do_move_vec(pos, dir1, 16)
+                local dir2 = calc_move("r")
+                do_move_vec(pos, dir2, 32)
+                meta:set_int("edges_touched", 0)
+            end
         end
 
         core.show_formspec(name, formname, def.protector_formspec(pos, meta))
