@@ -1018,6 +1018,9 @@ local function build_gantry(origin, clear)
     if not p1 or not p2 or not p3 or not p4 then 
         return
     end
+    if not p1.x or not p2.x or not p3.x or not p4.x or not p1.z or not p2.z or not p3.z or not p4.z then 
+        return
+    end
     local function build_post(pos)
         for y = 0, 4, 1 do
             local p = vector.add(pos, {x = 0, y = y, z = 0})
@@ -1141,6 +1144,9 @@ local function draw_gantry(origin, clear, force)
     local vdir = get_dir(origin)
 
     local meta = core.get_meta(origin)
+    if not meta:get_string("area") then
+        return
+    end    
     local area = core.deserialize(meta:get_string("area"))
     if area == nil then return end
     local g_vec = core.deserialize(meta:get_string("gantry_vec"))
