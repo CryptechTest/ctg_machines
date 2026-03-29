@@ -1926,6 +1926,13 @@ local function register_gantry(data)
                 return false
             end
             local meta = core.get_meta(pos)
+            if player then
+                if core.check_player_privs(player:get_player_name(), {
+                    gantry_admin = true
+                }) then
+                    return true
+                end
+            end
             if player and player.get_player_name then
                 if not is_owner(meta, player:get_player_name()) and not is_member(meta, player:get_player_name()) then
                     return false
