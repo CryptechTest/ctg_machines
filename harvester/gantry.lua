@@ -1014,6 +1014,9 @@ local function build_gantry(origin, clear)
     end
     local area = core.deserialize(meta:get_string("area"))
     if area == nil then return end
+    if not meta:get_string("post1") or not meta:get_string("post2") or not meta:get_string("post3") or not meta:get_string("post4") then
+        return
+    end
     local p1 = core.deserialize(meta:get_string("post1"))
     local p2 = core.deserialize(meta:get_string("post2"))
     local p3 = core.deserialize(meta:get_string("post3"))
@@ -1085,11 +1088,19 @@ local function build_gantry(origin, clear)
         local pB = vector.add(origin, {x = 0, y = y, z = 0})
         local extSupport = false
         --[[if math.abs(vdir.x) == 1 then
-            pB.x = p3.x
-            extSupport = area.maxZ - area.minZ > 16
+            -- For X direction, pB should be positioned to provide extended support
+            -- when the Z dimension is large
+            if area.maxZ - area.minZ > 16 then
+                extSupport = true
+                pB.x = p3.x
+            end
         elseif math.abs(vdir.z) == 1 then
-            pB.z = p3.z
-            extSupport = area.maxX - area.minX > 16
+            -- For Z direction, pB should be positioned to provide extended support
+            -- when the X dimension is large
+            if area.maxX - area.minX > 16 then
+                extSupport = true
+                pB.z = p1.z
+            end
         end]]
         if y == 3 then
             if not clear then
@@ -1116,10 +1127,10 @@ local function build_gantry(origin, clear)
                 if extSupport then core.set_node(pB, {name = "air"}) end
             end
         elseif y == 0 then
-            if not clear and extSupport then 
-                core.set_node(pB, {name = "ctg_machines:gantry_pole"}) 
-            elseif extSupport then 
-                core.set_node(pB, {name = "air"}) 
+            if not clear and extSupport then
+                core.set_node(pB, {name = "ctg_machines:gantry_pole"})
+            elseif extSupport then
+                core.set_node(pB, {name = "air"})
             end
         end
     end    
@@ -1961,11 +1972,12 @@ local function register_gantry(data)
             
         end,
         after_dig_node = function(pos,oldnode, oldmetadata, player)
-            draw_gantry(oldnode, true, true)
-            build_gantry(oldnode, true)
+
             technic.machine_after_dig_node(pos,oldnode, oldmetadata, player)
         end,
         on_destruct = function(pos)
+            draw_gantry(pos, true, true)
+            build_gantry(pos, true)
         end,
         on_receive_fields = function(pos, formname, fields, sender)
             if fields.quit then
