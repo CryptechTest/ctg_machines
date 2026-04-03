@@ -658,6 +658,70 @@ core.register_node("ctg_machines:gantry_tube_head", {
     }
 })
 
+local function is_air(name)
+    if name == "air" then
+        return true
+    elseif name == "technic:dummy_light_source" then            
+        return true
+    elseif name == "vacuum:atmos_thick" then
+        return true
+    elseif name == "ctg_airs:atmos_hot" then
+        return true
+    elseif name == "ctg_airs:atmos_warm" then
+        return true
+    elseif name == ":asteroid:atmos" then
+        return true
+    else
+        return false
+    end
+end
+
+local function is_atmos(name)
+    if name == "vacuum:vacuum" then
+        return true
+    elseif name == "vacuum:atmos_thin" then
+        return true
+    elseif name == ":asteroid:atmos" then
+        return true
+    elseif is_air(name) then
+        return true
+    else
+        return false
+    end
+end
+
+local function is_liquid(name)
+    if name == "default:water_source" then
+        return true
+    elseif name == "default:water_flowing" then
+        return true
+    elseif name == "default:river_water_source" then
+        return true
+    elseif name == "default:river_water_flowing" then
+        return true
+    elseif name == "livingcaves:water_source" then
+        return true
+    elseif name == "livingcaves:water_flowing" then
+        return true
+    else
+        return false
+    end
+end
+
+local function is_clear(pos)
+    if not pos then return false end
+    local name = core.get_node(pos).name
+    if is_air(name) then
+        return true
+    elseif is_atmos(name) then
+        return true
+    elseif is_liquid(name) then
+        return true
+    else
+        return false
+    end
+end
+
 local function getOppositeCorners(points)
     local minSum = math.huge
     local maxSum = -math.huge
@@ -1177,7 +1241,7 @@ local function draw_gantry(origin, clear, force)
     local function draw_pos(_pos, name)
         local n = core.get_node(_pos)
         local g = core.get_item_group(n.name, "gantry_frame")
-        if n.name ~= "air" and g == 0 then
+        if not is_atmos(n.name) and g == 0 then
             core.dig_node(_pos)
         end
         core.set_node(_pos, {name = name})
@@ -1187,11 +1251,11 @@ local function draw_gantry(origin, clear, force)
         for y = -1, -2, -1 do
             local p = vector.add(pos, vector.new(0,y,0))
             local n = core.get_node(p).name
-            if y == -2 and not clear and (n == "air" or string.find(n,"ctg_machines:gantry_tube")) then
+            if y == -2 and not clear and (is_clear(p) or string.find(n,"ctg_machines:gantry_tube")) then
                 draw_pos(p, "ctg_machines:gantry_tube_head")
-            elseif not clear and (n == "air" or string.find(n,"ctg_machines:gantry_tube")) then
+            elseif not clear and (is_clear(p) or string.find(n,"ctg_machines:gantry_tube")) then
                 draw_pos(p, "ctg_machines:gantry_tube_arm")
-            elseif clear and n ~= "air" then
+            elseif clear and not is_clear(p) then
                 core.remove_node(p)
             end
         end
@@ -1369,6 +1433,7 @@ end
 
 local function move_gantry_manual(pos)
     -- TODO: ????
+    -- TODO: del this?
 end
 
 local function is_harvest_group(name)
@@ -1391,6 +1456,7 @@ local function is_harvest_group(name)
         ['x_farming:cotton'] = 8,
         ['ctg_foods:rye'] = 11,
         ['x_farming:poisonouspotato'] = 0,
+        ['x_farming:rice'] = 0,
     }
     for crop, _ in pairs(crops) do
         if crop == name  then
@@ -1503,6 +1569,28 @@ local function register_gantry(data)
     end
     if data.insert_object then
         tube.insert_object = data.insert_object
+    end
+
+    local function is_water(pos)
+        local node = core.get_node(pos)
+        if node.name == "default:water_source" then
+            return true
+        elseif node.name == "default:river_water_source" then
+            return true
+        elseif node.name == "livingcaves:water_source" then
+            return true
+        else
+            return false 
+        end
+    end
+
+    local function is_silt(pos)
+        local node = core.get_node(pos)
+        if string.match(node.name, "silt_loam_soil") then
+            return true
+        else
+            return false
+        end
     end
 
     local function is_flora(pos)
@@ -1621,25 +1709,26 @@ local function register_gantry(data)
         end
     end
 
-    local function plant_seed(origin, pos)        
+    local function plant_seed(origin, pos, seed)        
         local meta = core.get_meta(origin)
         local inv = meta:get_inventory()
         local list = inv:get_list("cache")
         if type(list) ~= "table" then
             return false
         end
-        local seeds = {}
-        for _, seed in pairs(list) do
-            table.insert(seeds, seed)
-        end
-        table.shuffle(seeds)
-        local seed = nil
-        for _, item in pairs(seeds) do
-            if item ~= nil and core.get_item_group(item:get_name(), "seed") > 0 then
-                seed = item:get_name()
-                if seed ~= "" then
-                    --item:set_count(item:get_count() - 1)
-                    break
+        if not seed then
+            local seeds = {}
+            for _, s in pairs(list) do
+                table.insert(seeds, s)
+            end
+            table.shuffle(seeds)
+            for _, item in pairs(seeds) do
+                if item ~= nil and core.get_item_group(item:get_name(), "seed") > 0 then
+                    seed = item:get_name()
+                    if seed ~= "" then
+                        --item:set_count(item:get_count() - 1)
+                        break
+                    end
                 end
             end
         end
@@ -1676,7 +1765,13 @@ local function register_gantry(data)
             return true
         end
 
-        place_seed(pos, seed)
+        if is_water(pos) then
+            local pos_under = vector.new(pos.x,pos.y-1,pos.z)
+            core.set_node(pos_under, {name = seed})
+            x_farming.tick(pos_under)
+        else
+            place_seed(pos, seed)
+        end
         play_machine_sound_plant(pos)
 
         for _, item in pairs(list) do
@@ -1688,14 +1783,6 @@ local function register_gantry(data)
         inv:set_list("cache", list)
 
         return true
-    end
-
-    local function is_clear(pos)
-        local node = core.get_node(pos)
-        if node.name == "air" then
-            return true
-        end
-        return false
     end
 
     local function do_move(pos)
@@ -1805,6 +1892,14 @@ local function register_gantry(data)
                             core.dig_node(t_pos)
                         end)                        
                         harvest_particle(t_pos, 3)
+                    end
+                elseif is_water(t_pos_below) then
+                    local s_pos_below = vector.new(t_pos_below.x,t_pos_below.y-1,t_pos_below.z)
+                    if is_silt(s_pos_below) then
+                        plant_seed(pos, t_pos_below, "x_farming:seed_rice")
+                    elseif is_crop_ready(s_pos_below) then
+                        -- harvest rice...
+                        harvest_crop(s_pos_below)
                     end
                 end
             end
